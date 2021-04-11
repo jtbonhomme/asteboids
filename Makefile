@@ -6,11 +6,14 @@ REPO=jtbonhomme/asteboids
 help: ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-lint: ## Go lint the repo.
+lint: ## Execute Golangci-lint on the repo.
 	golangci-lint -v --deadline 100s --skip-dirs docs run ./...
 
 test: lint ## Go test the repo.
 	GIN_MODE=release go test ./... -cover -coverprofile coverage.out
+
+run: ## Run the main program.
+	go run cmd/asteboids/main.go
 
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)

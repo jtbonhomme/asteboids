@@ -61,7 +61,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	// Draw the message.
 	usage := "s: take a screenshot\nCmd + q: exit"
-	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n%s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), usage)
+	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
+	msg += fmt.Sprintf("direction: %0.2f\nspeed: %0.2f\n", g.agents[0].Direction(), g.agents[0].Speed())
+	msg += fmt.Sprintf("x, y: %v\n", g.agents[0].Position())
+	msg += fmt.Sprintf("%s\n", usage)
 	ebitenutil.DebugPrint(screen, msg)
 }
 

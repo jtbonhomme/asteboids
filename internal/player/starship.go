@@ -3,7 +3,9 @@ package player
 import (
 	"image"
 	"image/color"
+	_ "image/png"
 	"math"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/game"
@@ -17,20 +19,25 @@ type Starship struct {
 	size          float64
 	rotationAngle float64
 
+	starshipWidth  int
+	starshipHeight int
+
 	speed        float64
 	acceleration float64
 	vertices     []ebiten.Vertex
 
-	emptyImage *ebiten.Image
+	image *ebiten.Image
 }
 
 func NewStarship(log *logrus.Logger, x, y int) *Starship {
 	s := Starship{
-		direction:     90.0,
-		speed:         0.0,
-		acceleration:  0.0,
-		size:          20,
-		rotationAngle: 5,
+		direction:      90.0,
+		speed:          0.0,
+		acceleration:   0.0,
+		size:           20,
+		rotationAngle:  5,
+		starshipWidth:  50,
+		starshipHeight: 50,
 		position: game.Position{
 			X: x,
 			Y: y,
@@ -39,18 +46,46 @@ func NewStarship(log *logrus.Logger, x, y int) *Starship {
 		vertices: []ebiten.Vertex{},
 	}
 	s.updateVertices()
-	s.emptyImage = ebiten.NewImage(3, 3)
-	s.emptyImage.Fill(color.White)
+	s.image = ebiten.NewImage(s.starshipWidth, s.starshipHeight)
 
+	f, err := os.Open("./assets/ship.png")
+	if err != nil {
+		s.log.Errorf("error when opening file: %s", err.Error())
+		s.image.Fill(color.White)
+		return &s
+	}
+
+	defer f.Close()
+	rawImage, _, err := image.Decode(f)
+	if err != nil {
+		s.log.Errorf("error when decoding image from file: %s", err.Error())
+		s.image.Fill(color.White)
+		return &s
+	}
+
+	newImage := ebiten.NewImageFromImage(rawImage)
+	if newImage != nil {
+		s.image.DrawImage(newImage, nil)
+	} else {
+		s.log.Errorf("error when creating image from raw: %s", err.Error())
+		s.image.Fill(color.White)
+	}
 	return &s
 }
 
 // Draw draws the agent.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawTrianglesOptions{}
+	/*op := &ebiten.DrawTrianglesOptions{}
 	op.Address = ebiten.AddressUnsafe
-	screen.DrawTriangles(s.vertices, []uint16{0, 1, 2}, s.emptyImage.SubImage(image.Rect(1, 1, 2, 2)).(*ebiten.Image), op)
+	screen.DrawTriangles(s.vertices, []uint16{0, 1, 2}, s.image.SubImage(image.Rect(1, 1, 2, 2)).(*ebiten.Image), op)*/
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(-s.starshipWidth/2), float64(-s.starshipHeight/2))
+	op.GeoM.Rotate(s.direction * 2 * math.Pi / 360)
+	op.GeoM.Translate(float64(s.position.X), float64(s.position.Y))
+
+	screen.DrawImage(s.image, op)
 }
 
 func (s *Starship) updateVertices() {
@@ -83,6 +118,12 @@ func (s *Starship) updateVertices() {
 
 func (s *Starship) rotate(i float64) {
 	s.direction += i * s.rotationAngle
+	if s.direction > 360 {
+		s.direction -= 360
+	}
+	if s.direction < 0 {
+		s.direction += 360
+	}
 }
 
 // Update proceeds the game state.

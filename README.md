@@ -6,3 +6,16 @@
 
 This repository is a simple port of the original game play in Go, while replacing asteroids with boids (autonomous agents).
 
+# Software Design
+
+The 2D game engine is [ebiten](https://ebiten.org/): A dead simple 2D game library for Go.
+
+# Run
+
+```sh
+$ make run
+```
+
+## Keyboard
+
+* `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)

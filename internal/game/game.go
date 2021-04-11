@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,7 +33,7 @@ func New(log *logrus.Logger) *Game {
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
-func (g *Game) Update(image *ebiten.Image) error {
+func (g *Game) Update() error {
 	// Write your game's logical update.
 	return nil
 }
@@ -43,10 +43,7 @@ func (g *Game) Update(image *ebiten.Image) error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Write your game's rendering.
 	// Draw the ground image.
-	err := screen.Fill(g.backgroundColor)
-	if err != nil {
-		g.log.Errorf("error while drawing background: %s", err.Error())
-	}
+	screen.Fill(g.backgroundColor)
 
 	// Draw the message.
 	usage := "s: take a screenshot\nCmd + q: exit"

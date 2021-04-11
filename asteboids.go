@@ -3,7 +3,7 @@ package asteboids
 import (
 	"os"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )

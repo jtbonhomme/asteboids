@@ -19,6 +19,7 @@ type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
 	backgroundColor color.RGBA
+	agents          []Agent
 }
 
 func New(log *logrus.Logger) *Game {
@@ -31,10 +32,19 @@ func New(log *logrus.Logger) *Game {
 	}
 }
 
+// Register adds a new agent (player or ai) to the game.
+func (g *Game) Register(agent Agent) {
+	g.agents = append(g.agents, agent)
+}
+
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 	// Write your game's logical update.
+	// Update the agents
+	for _, a := range g.agents {
+		a.Update()
+	}
 	return nil
 }
 
@@ -45,9 +55,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Draw the ground image.
 	screen.Fill(g.backgroundColor)
 
+	// Draw the agents
+	for _, a := range g.agents {
+		a.Draw(screen)
+	}
 	// Draw the message.
 	usage := "s: take a screenshot\nCmd + q: exit"
-	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n%s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), usage)
+	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
+	msg += fmt.Sprintf("direction: %0.2f\nspeed: %0.2f\n", g.agents[0].Direction(), g.agents[0].Speed())
+	msg += fmt.Sprintf("x, y: %v\n", g.agents[0].Position())
+	msg += fmt.Sprintf("%s\n", usage)
 	ebitenutil.DebugPrint(screen, msg)
 }
 

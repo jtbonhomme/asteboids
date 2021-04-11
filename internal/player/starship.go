@@ -21,31 +21,38 @@ type Starship struct {
 
 	starshipWidth  int
 	starshipHeight int
+	screenWidth    int
+	screenHeight   int
 
-	speed        float64
-	acceleration float64
-	vertices     []ebiten.Vertex
+	speed           float64
+	acceleration    float64
+	maxAcceleration float64
+
+	//vertices        []ebiten.Vertex
 
 	image *ebiten.Image
 }
 
-func NewStarship(log *logrus.Logger, x, y int) *Starship {
+func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Starship {
 	s := Starship{
-		direction:      90.0,
-		speed:          0.0,
-		acceleration:   0.0,
-		size:           20,
-		rotationAngle:  5,
-		starshipWidth:  50,
-		starshipHeight: 50,
+		direction:       90.0,
+		acceleration:    0.1,
+		speed:           0,
+		maxAcceleration: 50,
+		size:            20,
+		rotationAngle:   5,
+		starshipWidth:   50,
+		starshipHeight:  50,
+		screenWidth:     screenWidth,
+		screenHeight:    screenHeight,
 		position: game.Position{
 			X: x,
 			Y: y,
 		},
-		log:      log,
-		vertices: []ebiten.Vertex{},
+		log: log,
+		//vertices: []ebiten.Vertex{},
 	}
-	s.updateVertices()
+	//s.updateVertices()
 	s.image = ebiten.NewImage(s.starshipWidth, s.starshipHeight)
 
 	f, err := os.Open("./assets/ship.png")
@@ -88,6 +95,7 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 	screen.DrawImage(s.image, op)
 }
 
+/*
 func (s *Starship) updateVertices() {
 	vs := []ebiten.Vertex{}
 	for i := 0; i < 3; i++ {
@@ -114,7 +122,7 @@ func (s *Starship) updateVertices() {
 	vs[2].DstY = float32(centerY + int(s.size*math.Sin(s.direction*2*math.Pi/360+4*math.Pi/3)))
 
 	s.vertices = vs
-}
+}*/
 
 func (s *Starship) rotate(i float64) {
 	s.direction += i * s.rotationAngle
@@ -126,6 +134,16 @@ func (s *Starship) rotate(i float64) {
 	}
 }
 
+func (s *Starship) accelerate(i float64) {
+	s.speed += i * s.acceleration
+	if s.speed > s.maxAcceleration {
+		s.speed = s.maxAcceleration
+	}
+	if s.speed < 0 {
+		s.speed = 0
+	}
+}
+
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
@@ -134,7 +152,28 @@ func (s *Starship) Update() {
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		s.rotate(1)
 	}
-	s.updateVertices()
+
+	if ebiten.IsKeyPressed(ebiten.KeyUp) {
+		s.accelerate(1)
+	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
+		s.accelerate(-1)
+	}
+
+	// update coordinates given speed
+	s.position.X += int(s.speed * s.speed * math.Cos(s.direction*2*math.Pi/360))
+	s.position.Y += int(s.speed * s.speed * math.Sin(s.direction*2*math.Pi/360))
+
+	if s.position.X > s.screenWidth {
+		s.position.X = 0
+	} else if s.position.X < 0 {
+		s.position.X = s.screenWidth
+	}
+	if s.position.Y > s.screenHeight {
+		s.position.Y = 0
+	} else if s.position.Y < 0 {
+		s.position.Y = s.screenHeight
+	}
+	//s.updateVertices()
 }
 
 // Position returns the current agent position

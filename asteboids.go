@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/jtbonhomme/asteboids/game"
+	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
 

@@ -16,7 +16,8 @@ func Run(log *logrus.Logger) error {
 	ebiten.SetWindowSize(g.ScreenWidth, g.ScreenHeight)
 	ebiten.SetWindowTitle("Asteboids")
 
-	p := player.New(log, g.ScreenWidth/2, g.ScreenHeight/2)
+	p := player.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2)
+	log.Infof("added created player: %+v", p)
 	g.Register(p)
 	// Call ebiten.RunGame to start your game loop.
 	err := ebiten.RunGame(g)

@@ -42,9 +42,9 @@ func (g *Game) Register(agent Agent) {
 func (g *Game) Update() error {
 	// Write your game's logical update.
 	// Update the agents
-	/*	for _, a := range g.agents {
+	for _, a := range g.agents {
 		a.Update()
-	}*/
+	}
 	return nil
 }
 
@@ -56,9 +56,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(g.backgroundColor)
 
 	// Draw the agents
-	/*	for _, a := range g.agents {
+	for _, a := range g.agents {
 		a.Draw(screen)
-	}*/
+	}
 	// Draw the message.
 	usage := "s: take a screenshot\nCmd + q: exit"
 	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n%s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), usage)

@@ -3,6 +3,8 @@ package player
 import (
 	"image"
 	"image/color"
+
+	// anonymous import for png decoder
 	_ "image/png"
 	"math"
 	"os"
@@ -12,21 +14,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	accelerationFactor float64 = 0.6
+	velocityFactor     float64 = 0.4
+	maxVelocity        float64 = 10
+	rotationAngle      float64 = math.Pi / 36 // rotation of 5°
+)
+
 type Starship struct {
-	log           *logrus.Logger
-	position      game.Position
-	direction     float64
-	size          float64
-	rotationAngle float64
+	log         *logrus.Logger
+	position    game.Position
+	orientation float64 // theta (radian)
+	size        float64
 
 	starshipWidth  int
 	starshipHeight int
 	screenWidth    int
 	screenHeight   int
 
-	speed           float64
-	acceleration    float64
-	maxAcceleration float64
+	velocity     game.Vector
+	acceleration game.Vector
 
 	//vertices        []ebiten.Vertex
 
@@ -35,16 +42,20 @@ type Starship struct {
 
 func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Starship {
 	s := Starship{
-		direction:       90.0,
-		acceleration:    0.1,
-		speed:           0,
-		maxAcceleration: 50,
-		size:            20,
-		rotationAngle:   5,
-		starshipWidth:   50,
-		starshipHeight:  50,
-		screenWidth:     screenWidth,
-		screenHeight:    screenHeight,
+		orientation: 90.0,
+		velocity: game.Vector{
+			X: 0,
+			Y: 0,
+		},
+		acceleration: game.Vector{
+			X: 0,
+			Y: 0,
+		},
+		size:           20,
+		starshipWidth:  50,
+		starshipHeight: 50,
+		screenWidth:    screenWidth,
+		screenHeight:   screenHeight,
 		position: game.Position{
 			X: x,
 			Y: y,
@@ -89,7 +100,7 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(-s.starshipWidth/2), float64(-s.starshipHeight/2))
-	op.GeoM.Rotate(s.direction * 2 * math.Pi / 360)
+	op.GeoM.Rotate(s.orientation)
 	op.GeoM.Translate(float64(s.position.X), float64(s.position.Y))
 
 	screen.DrawImage(s.image, op)
@@ -113,34 +124,44 @@ func (s *Starship) updateVertices() {
 	centerX := s.position.X
 	centerY := s.position.Y
 	// spaceship head
-	vs[0].DstX = float32(centerX + int(s.size*math.Cos(s.direction*2*math.Pi/360)))
-	vs[0].DstY = float32(centerY + int(s.size*math.Sin(s.direction*2*math.Pi/360)))
+	vs[0].DstX = float32(centerX + int(s.size*math.Cos(s.orientation)))
+	vs[0].DstY = float32(centerY + int(s.size*math.Sin(s.orientation)))
 	// spaceship base
-	vs[1].DstX = float32(centerX + int(s.size*math.Cos(s.direction*2*math.Pi/360+2*math.Pi/3)))
-	vs[1].DstY = float32(centerY + int(s.size*math.Sin(s.direction*2*math.Pi/360+2*math.Pi/3)))
-	vs[2].DstX = float32(centerX + int(s.size*math.Cos(s.direction*2*math.Pi/360+4*math.Pi/3)))
-	vs[2].DstY = float32(centerY + int(s.size*math.Sin(s.direction*2*math.Pi/360+4*math.Pi/3)))
+	vs[1].DstX = float32(centerX + int(s.size*math.Cos(s.orientation+2*math.Pi/3)))
+	vs[1].DstY = float32(centerY + int(s.size*math.Sin(s.orientation+2*math.Pi/3)))
+	vs[2].DstX = float32(centerX + int(s.size*math.Cos(s.orientation+4*math.Pi/3)))
+	vs[2].DstY = float32(centerY + int(s.size*math.Sin(s.orientation+4*math.Pi/3)))
 
 	s.vertices = vs
 }*/
 
 func (s *Starship) rotate(i float64) {
-	s.direction += i * s.rotationAngle
-	if s.direction > 360 {
-		s.direction -= 360
+	s.orientation += i * rotationAngle
+	if s.orientation > 2*math.Pi {
+		s.orientation -= 2 * math.Pi
 	}
-	if s.direction < 0 {
-		s.direction += 360
+	if s.orientation < 0 {
+		s.orientation += 2 * math.Pi
 	}
 }
 
-func (s *Starship) accelerate(i float64) {
-	s.speed += i * s.acceleration
-	if s.speed > s.maxAcceleration {
-		s.speed = s.maxAcceleration
+func (s *Starship) updateAcceleration(i float64) {
+	s.acceleration.X = accelerationFactor * i * math.Cos(s.orientation)
+	s.acceleration.Y = accelerationFactor * i * math.Sin(s.orientation)
+}
+
+func (s *Starship) updateVelocity() {
+	s.velocity.X += s.acceleration.X
+	s.velocity.Y += s.acceleration.Y
+
+	velocityValue := math.Sqrt(s.velocity.X*s.velocity.X + s.velocity.Y*s.velocity.Y)
+	if velocityValue > maxVelocity {
+		s.velocity.X = maxVelocity * math.Cos(s.orientation)
+		s.velocity.Y = maxVelocity * math.Sin(s.orientation)
 	}
-	if s.speed < 0 {
-		s.speed = 0
+	if velocityValue < 0 {
+		s.velocity.X = 0
+		s.velocity.Y = 0
 	}
 }
 
@@ -154,14 +175,18 @@ func (s *Starship) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		s.accelerate(1)
-	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		s.accelerate(-1)
+		s.updateAcceleration(1)
+		/*	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
+			s.updateAcceleration(-1)*/
+	} else {
+		s.updateAcceleration(0)
 	}
 
-	// update coordinates given speed
-	s.position.X += int(s.speed * s.speed * math.Cos(s.direction*2*math.Pi/360))
-	s.position.Y += int(s.speed * s.speed * math.Sin(s.direction*2*math.Pi/360))
+	s.updateVelocity()
+
+	// update position
+	s.position.X += int(velocityFactor * s.velocity.X)
+	s.position.Y += int(velocityFactor * s.velocity.Y)
 
 	if s.position.X > s.screenWidth {
 		s.position.X = 0
@@ -181,12 +206,17 @@ func (s *Starship) Position() game.Position {
 	return s.position
 }
 
-// Speed returns the current agent speed
-func (s *Starship) Speed() float64 {
-	return s.speed
+// Velocity returns the current agent speed vector
+func (s *Starship) Velocity() (v game.Vector, n float64) {
+	return s.velocity, math.Sqrt(s.velocity.X*s.velocity.X + s.velocity.Y + s.velocity.Y)
 }
 
-// Direction returns the current agent direction
-func (s *Starship) Direction() float64 {
-	return s.direction
+// Acceleration returns the current agent acceleration vector
+func (s *Starship) Acceleration() (v game.Vector, n float64) {
+	return s.acceleration, math.Sqrt(s.acceleration.X*s.acceleration.X + s.acceleration.Y + s.acceleration.Y)
+}
+
+// orientation returns the current agent orientation in degre
+func (s *Starship) Orientation() float64 {
+	return s.orientation * 360 / (2 * math.Pi)
 }

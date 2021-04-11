@@ -9,13 +9,20 @@ type Agent interface {
 	Update()
 	// Position returns the current agent position
 	Position() Position
-	// Speed returns the current agent speed
-	Speed() float64
-	// Direction returns the current agent direction
-	Direction() float64
+	// Velocity returns the current agent velocity
+	Velocity() (Vector, float64)
+	// Acceleration returns the current agent acceleration
+	Acceleration() (Vector, float64)
+	// Orientation returns the current agent direction
+	Orientation() float64
 }
 
 type Position struct {
 	X int
 	Y int
+}
+
+type Vector struct {
+	X float64
+	Y float64
 }

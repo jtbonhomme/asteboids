@@ -60,7 +60,7 @@ func (a *AgentBody) Draw(screen *ebiten.Image) {
 	screen.DrawImage(a.Image, op)
 }
 
-func (a *AgentBody) rotate(i float64) {
+func (a *AgentBody) Rotate(i float64) {
 	a.Orientation += i * rotationAngle
 	if a.Orientation > 2*math.Pi {
 		a.Orientation -= 2 * math.Pi
@@ -70,12 +70,12 @@ func (a *AgentBody) rotate(i float64) {
 	}
 }
 
-func (a *AgentBody) updateAcceleration(i float64) {
+func (a *AgentBody) UpdateAcceleration(i float64) {
 	a.Acceleration.X = AccelerationFactor * i * math.Cos(a.Orientation)
 	a.Acceleration.Y = AccelerationFactor * i * math.Sin(a.Orientation)
 }
 
-func (a *AgentBody) updateVelocity() {
+func (a *AgentBody) UpdateVelocity() {
 	a.Velocity.X += a.Acceleration.X - frictionFactor*a.Velocity.X
 	a.Velocity.Y += a.Acceleration.Y - frictionFactor*a.Velocity.Y
 
@@ -93,21 +93,7 @@ func (a *AgentBody) updateVelocity() {
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (a *AgentBody) Update() {
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		a.rotate(-1)
-	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		a.rotate(1)
-	}
-
-	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		a.updateAcceleration(1)
-		/*	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
-			a.updateAcceleration(-1)*/
-	} else {
-		a.updateAcceleration(0)
-	}
-
-	a.updateVelocity()
+	a.UpdateVelocity()
 
 	// update position
 	a.X += int(velocityFactor * a.Velocity.X)

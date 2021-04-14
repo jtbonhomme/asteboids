@@ -68,5 +68,19 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Stars
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+		s.Rotate(-1)
+	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+		s.Rotate(1)
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyUp) {
+		s.UpdateAcceleration(1)
+		/*	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
+			a.UpdateAcceleration(-1)*/
+	} else {
+		s.UpdateAcceleration(0)
+	}
+
 	s.AgentBody.Update()
 }

@@ -64,3 +64,9 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Stars
 	}
 	return &s
 }
+
+// Update proceeds the game state.
+// Update is called every tick (1/60 [s] by default).
+func (s *Starship) Update() {
+	s.AgentBody.Update()
+}

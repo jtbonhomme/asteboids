@@ -15,10 +15,11 @@ import (
 )
 
 const (
-	accelerationFactor float64 = 0.6
-	velocityFactor     float64 = 0.4
-	maxVelocity        float64 = 10
+	accelerationFactor float64 = 0.3
+	velocityFactor     float64 = 1.8
+	maxVelocity        float64 = 5.5
 	rotationAngle      float64 = math.Pi / 36 // rotation of 5°
+	frictionFactor     float64 = 0.03
 )
 
 type Starship struct {
@@ -42,7 +43,7 @@ type Starship struct {
 
 func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Starship {
 	s := Starship{
-		orientation: 90.0,
+		orientation: math.Pi / 2,
 		velocity: game.Vector{
 			X: 0,
 			Y: 0,
@@ -151,8 +152,8 @@ func (s *Starship) updateAcceleration(i float64) {
 }
 
 func (s *Starship) updateVelocity() {
-	s.velocity.X += s.acceleration.X
-	s.velocity.Y += s.acceleration.Y
+	s.velocity.X += s.acceleration.X - frictionFactor*s.velocity.X
+	s.velocity.Y += s.acceleration.Y - frictionFactor*s.velocity.Y
 
 	velocityValue := math.Sqrt(s.velocity.X*s.velocity.X + s.velocity.Y*s.velocity.Y)
 	if velocityValue > maxVelocity {
@@ -208,12 +209,12 @@ func (s *Starship) Position() game.Position {
 
 // Velocity returns the current agent speed vector
 func (s *Starship) Velocity() (v game.Vector, n float64) {
-	return s.velocity, math.Sqrt(s.velocity.X*s.velocity.X + s.velocity.Y + s.velocity.Y)
+	return s.velocity, math.Sqrt(s.velocity.X*s.velocity.X + s.velocity.Y*s.velocity.Y)
 }
 
 // Acceleration returns the current agent acceleration vector
 func (s *Starship) Acceleration() (v game.Vector, n float64) {
-	return s.acceleration, math.Sqrt(s.acceleration.X*s.acceleration.X + s.acceleration.Y + s.acceleration.Y)
+	return s.acceleration, math.Sqrt(s.acceleration.X*s.acceleration.X + s.acceleration.Y*s.acceleration.Y)
 }
 
 // orientation returns the current agent orientation in degre

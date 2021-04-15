@@ -15,7 +15,7 @@ import (
 )
 
 type Starship struct {
-	game.AgentBody
+	game.PhysicBody
 }
 
 func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Starship {
@@ -30,8 +30,8 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int) *Stars
 		Y: 0,
 	}
 	s.Size = 20
-	s.AgentWidth = 50
-	s.AgentHeight = 50
+	s.PhysicWidth = 50
+	s.PhysicHeight = 50
 	s.ScreenWidth = screenWidth
 	s.ScreenHeight = screenHeight
 	s.X = x
@@ -82,5 +82,5 @@ func (s *Starship) Update() {
 		s.UpdateAcceleration(0)
 	}
 
-	s.AgentBody.Update()
+	s.PhysicBody.Update()
 }

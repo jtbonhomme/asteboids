@@ -19,7 +19,7 @@ type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
 	backgroundColor color.RGBA
-	agents          []Agent
+	agents          []Physic
 }
 
 func New(log *logrus.Logger) *Game {
@@ -33,7 +33,7 @@ func New(log *logrus.Logger) *Game {
 }
 
 // Register adds a new agent (player or ai) to the game.
-func (g *Game) Register(agent Agent) {
+func (g *Game) Register(agent Physic) {
 	g.agents = append(g.agents, agent)
 }
 

@@ -25,22 +25,22 @@ type Vector struct {
 	Y float64
 }
 
-type Agent interface {
+type Physic interface {
 	// Draw draws the agent on screen
 	Draw(*ebiten.Image)
 	// Update updates the agent state
 	Update()
 }
 
-type AgentBody struct {
+type PhysicBody struct {
 	Position
 
 	Log         *logrus.Logger
 	Orientation float64 // theta (radian)
 	Size        float64
 
-	AgentWidth   int
-	AgentHeight  int
+	PhysicWidth  int
+	PhysicHeight int
 	ScreenWidth  int
 	ScreenHeight int
 
@@ -52,15 +52,15 @@ type AgentBody struct {
 
 // Draw draws the agent.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
-func (a *AgentBody) Draw(screen *ebiten.Image) {
+func (a *PhysicBody) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(-a.AgentWidth/2), float64(-a.AgentHeight/2))
+	op.GeoM.Translate(float64(-a.PhysicWidth/2), float64(-a.PhysicHeight/2))
 	op.GeoM.Rotate(a.Orientation)
 	op.GeoM.Translate(float64(a.X), float64(a.Y))
 	screen.DrawImage(a.Image, op)
 }
 
-func (a *AgentBody) Rotate(i float64) {
+func (a *PhysicBody) Rotate(i float64) {
 	a.Orientation += i * rotationAngle
 	if a.Orientation > 2*math.Pi {
 		a.Orientation -= 2 * math.Pi
@@ -70,12 +70,12 @@ func (a *AgentBody) Rotate(i float64) {
 	}
 }
 
-func (a *AgentBody) UpdateAcceleration(i float64) {
+func (a *PhysicBody) UpdateAcceleration(i float64) {
 	a.Acceleration.X = AccelerationFactor * i * math.Cos(a.Orientation)
 	a.Acceleration.Y = AccelerationFactor * i * math.Sin(a.Orientation)
 }
 
-func (a *AgentBody) UpdateVelocity() {
+func (a *PhysicBody) UpdateVelocity() {
 	a.Velocity.X += a.Acceleration.X - frictionFactor*a.Velocity.X
 	a.Velocity.Y += a.Acceleration.Y - frictionFactor*a.Velocity.Y
 
@@ -92,7 +92,7 @@ func (a *AgentBody) UpdateVelocity() {
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
-func (a *AgentBody) Update() {
+func (a *PhysicBody) Update() {
 	a.UpdateVelocity()
 
 	// update position

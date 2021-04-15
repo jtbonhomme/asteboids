@@ -19,7 +19,7 @@ type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
 	backgroundColor color.RGBA
-	agents          []Physic
+	agents          map[string]Physic
 }
 
 func New(log *logrus.Logger) *Game {
@@ -29,12 +29,18 @@ func New(log *logrus.Logger) *Game {
 		ScreenWidth:     defaultScreenWidth,
 		ScreenHeight:    defaultScreenHeight,
 		backgroundColor: color.RGBA{0x00, 0x00, 0x00, 0xff},
+		agents:          make(map[string]Physic),
 	}
 }
 
 // Register adds a new agent (player or ai) to the game.
 func (g *Game) Register(agent Physic) {
-	g.agents = append(g.agents, agent)
+	g.agents[agent.ID()] = agent
+}
+
+// Unregister deletes an agent (player or ai) from the game.
+func (g *Game) Unregister(id string) {
+	delete(g.agents, id)
 }
 
 // Update proceeds the game state.

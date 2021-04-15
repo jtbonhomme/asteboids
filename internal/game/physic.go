@@ -3,6 +3,7 @@ package game
 import (
 	"math"
 
+	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -30,11 +31,19 @@ type Physic interface {
 	Draw(*ebiten.Image)
 	// Update updates the agent state
 	Update()
+	// Init initializes the physic body
+	Init()
+	// ID displays physic body unique ID
+	ID() string
 }
+
+// AgentUnregister is a function to unregister an agent
+type AgentUnregister func(string)
 
 type PhysicBody struct {
 	Position
 
+	id          uuid.UUID
 	Log         *logrus.Logger
 	Orientation float64 // theta (radian)
 	Size        float64
@@ -47,7 +56,13 @@ type PhysicBody struct {
 	Velocity     Vector
 	Acceleration Vector
 
-	Image *ebiten.Image
+	Unregister AgentUnregister
+	Image      *ebiten.Image
+}
+
+// Init initializes the physic body
+func (a *PhysicBody) Init() {
+	a.id = uuid.New()
 }
 
 // Draw draws the agent.
@@ -109,4 +124,9 @@ func (a *PhysicBody) Update() {
 	} else if a.Y < 0 {
 		a.Y = a.ScreenHeight
 	}
+}
+
+// ID displays physic body unique ID
+func (a *PhysicBody) ID() string {
+	return a.id.String()
 }

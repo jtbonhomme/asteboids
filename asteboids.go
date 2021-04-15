@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jtbonhomme/asteboids/internal/agents"
 	"github.com/jtbonhomme/asteboids/internal/game"
-	"github.com/jtbonhomme/asteboids/internal/player"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,8 +16,8 @@ func Run(log *logrus.Logger) error {
 	ebiten.SetWindowSize(g.ScreenWidth, g.ScreenHeight)
 	ebiten.SetWindowTitle("Asteboids")
 
-	p := player.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight)
-	log.Infof("added created player: %+v", p)
+	p := agents.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister)
+	log.Infof("added starship: %+v", p)
 	g.Register(p)
 	// Call ebiten.RunGame to start your game loop.
 	err := ebiten.RunGame(g)

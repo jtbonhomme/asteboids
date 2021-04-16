@@ -70,6 +70,8 @@ type PhysicBody struct {
 
 	Unregister AgentUnregister
 	Image      *ebiten.Image
+
+	Debug bool
 }
 
 // Init initializes the physic body

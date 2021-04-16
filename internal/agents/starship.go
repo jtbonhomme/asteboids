@@ -1,11 +1,13 @@
 package agents
 
 import (
+	"image/color"
 	"time"
 
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
@@ -23,7 +25,7 @@ type Starship struct {
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
-func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb game.AgentUnregister) *Starship {
+func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb game.AgentUnregister, debug bool) *Starship {
 	s := Starship{
 		bullets:        make(map[string]*Bullet),
 		lastBulletTime: time.Now(),
@@ -53,6 +55,7 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
+	s.Debug = debug
 	return &s
 }
 
@@ -110,6 +113,9 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 	// Update bullets
 	for _, b := range s.bullets {
 		b.Draw(screen)
+	}
+	if s.Debug {
+		text.Draw(screen, s.String(), game.MplusNormalFont, s.X, s.Y-s.PhysicHeight/2+5, color.White)
 	}
 }
 

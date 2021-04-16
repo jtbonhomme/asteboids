@@ -6,9 +6,11 @@ import (
 	"math/rand"
 
 	// anonymous import for png decoder
+	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
@@ -25,7 +27,7 @@ type Asteroid struct {
 }
 
 // NewAsteroid creates a new Asteroid (PhysicalBody agent)
-func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.AgentUnregister) *Asteroid {
+func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.AgentUnregister, debug bool) *Asteroid {
 	a := Asteroid{}
 	a.Type = "asteroid"
 	a.Unregister = cb
@@ -50,6 +52,7 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
+	a.Debug = debug
 	return &a
 }
 
@@ -77,7 +80,11 @@ func (a *Asteroid) Update() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (a *Asteroid) Draw(screen *ebiten.Image) {
-	a.PhysicBody.Draw(screen)
+	defer a.PhysicBody.Draw(screen)
+
+	if a.Debug {
+		text.Draw(screen, a.String(), game.MplusNormalFont, a.X, a.Y-a.PhysicHeight/2+5, color.White)
+	}
 }
 
 // SelfDestroy removes the agent from the game

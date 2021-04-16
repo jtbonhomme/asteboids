@@ -6,6 +6,7 @@ require (
 	github.com/dimiro1/banner v1.1.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb // indirect
 	github.com/google/uuid v1.2.0 // indirect
+	github.com/hajimehoshi/ebiten v1.12.11 // indirect
 	github.com/hajimehoshi/ebiten/v2 v2.0.8 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect

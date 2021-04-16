@@ -29,7 +29,7 @@ type Vector struct {
 type Physic interface {
 	// Draw draws the agent on screen
 	Draw(*ebiten.Image)
-	// Update updates the agent state
+	// Update proceeds the agent state
 	Update()
 	// Init initializes the physic body
 	Init()

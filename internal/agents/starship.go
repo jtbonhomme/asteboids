@@ -14,14 +14,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//  Starship is a PhysicalBody agent
+// Starship is a PhysicalBody agent.
+// It represents a playable star ship.
 type Starship struct {
 	game.PhysicBody
+	bullets map[string]*Bullet
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
 func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb game.AgentUnregister) *Starship {
-	s := Starship{}
+	s := Starship{
+		bullets: make(map[string]*Bullet),
+	}
 	s.Unregister = cb
 	s.Init()
 
@@ -34,7 +38,6 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 		X: 0,
 		Y: 0,
 	}
-	s.Size = 20
 	s.PhysicWidth = 50
 	s.PhysicHeight = 50
 	s.ScreenWidth = screenWidth
@@ -90,12 +93,35 @@ func (s *Starship) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		s.SelfDestroy()
 	}
+
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		s.RegisterBullet(NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.UnregisterBullet))
+	}
+
+	// Update bullets
+	for _, b := range s.bullets {
+		b.Update()
+	}
+}
+
+// Register adds a new bullet to the game.
+func (s *Starship) RegisterBullet(bullet *Bullet) {
+	s.bullets[bullet.ID()] = bullet
+}
+
+// Unregister deletes an bullet from the game.
+func (s *Starship) UnregisterBullet(id string) {
+	delete(s.bullets, id)
 }
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.PhysicBody.Draw(screen)
+	// Update bullets
+	for _, b := range s.bullets {
+		b.Draw(screen)
+	}
 }
 
 // SelfDestroy removes the agent from the game
@@ -103,3 +129,5 @@ func (s *Starship) SelfDestroy() {
 	defer s.Unregister(s.ID())
 	s.Log.Infof("SelfDestroy starship %s", s.ID())
 }
+
+// todo unregister bullet as cb

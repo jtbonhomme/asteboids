@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	defaultScreenWidth  = 640
-	defaultScreenHeight = 480
+	defaultScreenWidth  = 1080
+	defaultScreenHeight = 720
 )
 
 type Game struct {

@@ -12,6 +12,7 @@ import (
 
 func main() {
 	debug := flag.Bool("debug", false, "Debug log level")
+	optim := flag.Bool("optim", false, "Optimised mode")
 	flag.Parse()
 
 	isEnabled := true
@@ -32,7 +33,7 @@ Asteboids Version: ` + version.Read().Tag + `
 		log.SetLevel(logrus.InfoLevel)
 	}
 
-	err := asteboids.Run(log)
+	err := asteboids.Run(log, *optim)
 	if err != nil {
 		log.Fatalf("error while running asteboids: %s", err.Error())
 	}

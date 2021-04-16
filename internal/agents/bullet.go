@@ -40,8 +40,8 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 		Y: bulletVelocity * math.Sin(b.Orientation),
 	}
 	b.Size = 3
-	b.PhysicWidth = 8
-	b.PhysicHeight = 8
+	b.PhysicWidth = 16
+	b.PhysicHeight = 16
 	b.ScreenWidth = screenWidth
 	b.ScreenHeight = screenHeight
 	b.X = x

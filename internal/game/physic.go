@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -44,6 +45,8 @@ type Physic interface {
 	ID() string
 	// LoadImage loads a picture in an ebiten image
 	LoadImage(string) error
+	// String displays physic body information as a string
+	String() string
 }
 
 // AgentUnregister is a function to unregister an agent
@@ -51,7 +54,7 @@ type AgentUnregister func(string)
 
 type PhysicBody struct {
 	Position
-
+	Type        string
 	id          uuid.UUID
 	Log         *logrus.Logger
 	Orientation float64 // theta (radian)
@@ -138,6 +141,11 @@ func (a *PhysicBody) Update() {
 // ID displays physic body unique ID
 func (a *PhysicBody) ID() string {
 	return a.id.String()
+}
+
+// String displays physic body information as a string
+func (a *PhysicBody) String() string {
+	return fmt.Sprintf("%s: [%d, %d] %0.2f rad (%0.2f °)", a.Type, a.X, a.Y, a.Orientation, a.Orientation*180/math.Pi)
 }
 
 // LoadImage loads a picture in an ebiten image

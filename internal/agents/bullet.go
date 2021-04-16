@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	bulletVelocity float64 = 18.0
+	bulletVelocity float64 = 19.0
 	bulletTTL      int     = 30
 )
 
@@ -28,6 +28,7 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 	b := Bullet{
 		ttl: bulletTTL,
 	}
+	b.Type = "bullet"
 	b.Unregister = cb
 
 	b.Init()
@@ -57,7 +58,6 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Bullet) Update() {
-
 	b.ttl--
 	if b.ttl == 0 {
 		b.SelfDestroy()

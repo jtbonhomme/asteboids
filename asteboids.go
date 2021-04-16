@@ -19,6 +19,7 @@ func Run(log *logrus.Logger) error {
 	p := agents.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister)
 	log.Infof("added starship: %+v", p)
 	g.Register(p)
+	g.StarshipID = p.ID()
 	// Call ebiten.RunGame to start your game loop.
 	err := ebiten.RunGame(g)
 	if err != nil {

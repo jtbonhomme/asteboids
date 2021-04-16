@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	bulletThrottle time.Duration = 150 * time.Millisecond
+	bulletThrottle time.Duration = 100 * time.Millisecond
 )
 
 // Starship is a PhysicalBody agent.
@@ -28,6 +28,7 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 		bullets:        make(map[string]*Bullet),
 		lastBulletTime: time.Now(),
 	}
+	s.Type = "starship"
 	s.Unregister = cb
 	s.Init()
 

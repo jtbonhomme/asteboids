@@ -20,6 +20,7 @@ type Game struct {
 	ScreenHeight    int
 	backgroundColor color.RGBA
 	agents          map[string]Physic
+	StarshipID      string
 }
 
 func New(log *logrus.Logger) *Game {
@@ -69,6 +70,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	usage := "s: take a screenshot\nCmd + q: exit"
 	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
 	msg += fmt.Sprintf("%s\n", usage)
+	msg += fmt.Sprintf("%s\n", g.agents[g.StarshipID])
 	ebitenutil.DebugPrint(screen, msg)
 }
 

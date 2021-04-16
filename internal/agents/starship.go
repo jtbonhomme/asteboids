@@ -3,6 +3,7 @@ package agents
 import (
 	"image"
 	"image/color"
+	"time"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -14,17 +15,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	bulletThrottle time.Duration = 150 * time.Millisecond
+)
+
 // Starship is a PhysicalBody agent.
 // It represents a playable star ship.
 type Starship struct {
 	game.PhysicBody
-	bullets map[string]*Bullet
+	bullets        map[string]*Bullet
+	lastBulletTime time.Time
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
 func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb game.AgentUnregister) *Starship {
 	s := Starship{
-		bullets: make(map[string]*Bullet),
+		bullets:        make(map[string]*Bullet),
+		lastBulletTime: time.Now(),
 	}
 	s.Unregister = cb
 	s.Init()
@@ -95,7 +102,7 @@ func (s *Starship) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		s.RegisterBullet(NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.UnregisterBullet))
+		s.RegisterBullet()
 	}
 
 	// Update bullets
@@ -105,8 +112,15 @@ func (s *Starship) Update() {
 }
 
 // Register adds a new bullet to the game.
-func (s *Starship) RegisterBullet(bullet *Bullet) {
+func (s *Starship) RegisterBullet() {
+	// throtlle call to avoid continuous shooting
+	if time.Since(s.lastBulletTime) < bulletThrottle {
+		return
+	}
+	s.lastBulletTime = time.Now()
+	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.UnregisterBullet)
 	s.bullets[bullet.ID()] = bullet
+	s.Log.Debugf("added bullet: %+v", bullet)
 }
 
 // Unregister deletes an bullet from the game.

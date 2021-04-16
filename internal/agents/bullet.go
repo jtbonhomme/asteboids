@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	bulletVelocity float64 = 5.5
-	bulletTTL      int     = 100
+	bulletVelocity float64 = 18.0
+	bulletTTL      int     = 30
+	deltaAngle     float64 = 20.0
 )
 
 // Bullet is a PhysicalBody agent
@@ -35,20 +36,20 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 	b.Unregister = cb
 
 	b.Init()
+	b.Log = log
 
 	b.Orientation = orientation
 	b.Velocity = game.Vector{
 		X: bulletVelocity * math.Cos(b.Orientation),
 		Y: bulletVelocity * math.Sin(b.Orientation),
 	}
-	b.Size = 2
-	b.PhysicWidth = 5
-	b.PhysicHeight = 5
+	b.Size = 3
+	b.PhysicWidth = 8
+	b.PhysicHeight = 8
 	b.ScreenWidth = screenWidth
 	b.ScreenHeight = screenHeight
 	b.X = x
 	b.Y = y
-	b.Log = log
 
 	b.updateVertices()
 	b.Image = ebiten.NewImage(3, 3)
@@ -64,29 +65,30 @@ func (b *Bullet) updateVertices() {
 			DstY:   0,
 			SrcX:   0,
 			SrcY:   0,
-			ColorR: 1,
-			ColorG: 1,
-			ColorB: 1,
-			ColorA: 1,
+			ColorR: 255,
+			ColorG: 255,
+			ColorB: 255,
+			ColorA: 255,
 		})
 	}
 	centerX := b.X
 	centerY := b.Y
 	// bullet vertices
-	vs[0].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi/16)))
-	vs[0].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi/16)))
-	vs[1].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation-math.Pi/16)))
-	vs[1].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation-math.Pi/16)))
-	vs[2].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi+math.Pi/16)))
-	vs[2].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi+math.Pi/16)))
-	vs[3].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi-math.Pi/16)))
-	vs[3].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi-math.Pi/16)))
+	vs[0].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi/deltaAngle)))
+	vs[0].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi/deltaAngle)))
+	vs[1].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation-math.Pi/deltaAngle)))
+	vs[1].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation-math.Pi/deltaAngle)))
+	vs[2].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi+math.Pi/deltaAngle)))
+	vs[2].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi+math.Pi/deltaAngle)))
+	vs[3].DstX = float32(centerX + int(b.Size*math.Cos(b.Orientation+math.Pi-math.Pi/deltaAngle)))
+	vs[3].DstY = float32(centerY + int(b.Size*math.Sin(b.Orientation+math.Pi-math.Pi/deltaAngle)))
 
 	b.vertices = vs
 }
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
+// Update maintains a TTL counter to limit live of bullets.
 func (b *Bullet) Update() {
 	b.ttl--
 	if b.ttl == 0 {

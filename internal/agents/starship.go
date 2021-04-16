@@ -1,14 +1,9 @@
 package agents
 
 import (
-	"image"
-	"image/color"
 	"time"
 
-	// anonymous import for png decoder
-	_ "image/png"
 	"math"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/game"
@@ -53,29 +48,9 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 	s.Y = y
 	s.Log = log
 
-	s.Image = ebiten.NewImage(s.ScreenWidth, s.ScreenHeight)
-
-	f, err := os.Open("./assets/ship.png")
+	err := s.LoadImage("./assets/ship.png")
 	if err != nil {
-		log.Errorf("error when opening file: %s", err.Error())
-		s.Image.Fill(color.White)
-		return &s
-	}
-
-	defer f.Close()
-	rawImage, _, err := image.Decode(f)
-	if err != nil {
-		log.Errorf("error when decoding image from file: %s", err.Error())
-		s.Image.Fill(color.White)
-		return &s
-	}
-
-	newImage := ebiten.NewImageFromImage(rawImage)
-	if newImage != nil {
-		s.Image.DrawImage(newImage, nil)
-	} else {
-		log.Errorf("error when creating image from raw: %s", err.Error())
-		s.Image.Fill(color.White)
+		log.Errorf("error when loading image from file: %s", err.Error())
 	}
 	return &s
 }
@@ -120,7 +95,6 @@ func (s *Starship) RegisterBullet() {
 	s.lastBulletTime = time.Now()
 	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.UnregisterBullet)
 	s.bullets[bullet.ID()] = bullet
-	s.Log.Debugf("added bullet: %+v", bullet)
 }
 
 // Unregister deletes an bullet from the game.

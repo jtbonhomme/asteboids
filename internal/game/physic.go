@@ -1,7 +1,14 @@
 package game
 
 import (
+	"errors"
+	"image"
+	"image/color"
 	"math"
+	"os"
+
+	// anonymous import for png decoder
+	_ "image/png"
 
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -35,6 +42,8 @@ type Physic interface {
 	Init()
 	// ID displays physic body unique ID
 	ID() string
+	// LoadImage loads a picture in an ebiten image
+	LoadImage(string) error
 }
 
 // AgentUnregister is a function to unregister an agent
@@ -129,4 +138,30 @@ func (a *PhysicBody) Update() {
 // ID displays physic body unique ID
 func (a *PhysicBody) ID() string {
 	return a.id.String()
+}
+
+// LoadImage loads a picture in an ebiten image
+func (a *PhysicBody) LoadImage(file string) error {
+	a.Image = ebiten.NewImage(a.ScreenWidth, a.ScreenHeight)
+
+	f, err := os.Open(file)
+	if err != nil {
+		a.Image.Fill(color.White)
+		return errors.New("error when opening file " + err.Error())
+	}
+
+	defer f.Close()
+	rawImage, _, err := image.Decode(f)
+	if err != nil {
+		a.Image.Fill(color.White)
+		return errors.New("error when decoding image from file " + err.Error())
+	}
+
+	newImage := ebiten.NewImageFromImage(rawImage)
+	if newImage == nil {
+		a.Image.Fill(color.White)
+		return errors.New("error when creating image from raw " + err.Error())
+	}
+	a.Image.DrawImage(newImage, nil)
+	return nil
 }

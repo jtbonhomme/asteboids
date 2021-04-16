@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/dimiro1/banner"
 	"github.com/jtbonhomme/asteboids"
 	"github.com/jtbonhomme/asteboids/internal/version"
@@ -9,6 +11,9 @@ import (
 )
 
 func main() {
+	debug := flag.Bool("debug", false, "Debug log level")
+	flag.Parse()
+
 	isEnabled := true
 	isColorEnabled := true
 	templ := `{{ .Title "Asteboids" "" 4 }}
@@ -20,8 +25,12 @@ Asteboids Version: ` + version.Read().Tag + `
 `
 	banner.InitString(colorable.NewColorableStdout(), isEnabled, isColorEnabled, templ)
 	log := logrus.New()
-	// Only log the warning severity or above.
-	log.SetLevel(logrus.DebugLevel)
+
+	if *debug {
+		log.SetLevel(logrus.DebugLevel)
+	} else {
+		log.SetLevel(logrus.InfoLevel)
+	}
 
 	err := asteboids.Run(log)
 	if err != nil {

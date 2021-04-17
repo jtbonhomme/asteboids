@@ -31,7 +31,7 @@ type Rubble struct {
 // NewRubble creates a new Rubble (PhysicalBody agent)
 func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu physics.AgentUnregister, debug bool) *Rubble {
 	r := Rubble{}
-	r.AgentType = physics.AsteroidAgent
+	r.AgentType = physics.RubbleAgent
 	r.Unregister = cbu
 
 	r.Init()

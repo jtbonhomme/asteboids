@@ -25,6 +25,7 @@ const (
 type Game struct {
 	log             *logrus.Logger
 	gameOver        bool
+	gameWon         bool
 	nAsteroids      int
 	startTime       time.Time
 	gameDuration    time.Duration
@@ -45,6 +46,7 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 	return &Game{
 		log:             log,
 		gameOver:        false,
+		gameWon:         false,
 		nAsteroids:      nAsteroids,
 		startTime:       time.Now(),
 		gameDuration:    0,
@@ -68,6 +70,19 @@ func (g *Game) Start() {
 	g.log.Infof("added starship: %s", p.ID())
 	g.Register(p)
 
+	// add asteroids
+	for i := 0; i < g.nAsteroids; i++ {
+		g.AddAsteroid()
+	}
+	g.startTime = time.Now()
+	g.gameDuration = 0
+	g.gameOver = false
+	g.gameWon = false
+	g.kills = 0
+}
+
+// AddAsteroid insert a new asteroid in the game.
+func (g *Game) AddAsteroid() {
 	nWidth, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenWidth/2)))
 	if err != nil {
 		g.log.Fatal(err)
@@ -76,21 +91,13 @@ func (g *Game) Start() {
 	if err != nil {
 		g.log.Fatal(err)
 	}
-
-	// add asteroids
-	for i := 0; i < g.nAsteroids; i++ {
-		a := agents.NewAsteroid(g.log,
-			int(nWidth.Int64()),
-			int(nHeight.Int64()),
-			g.ScreenWidth, g.ScreenHeight,
-			g.Register, g.Unregister,
-			g.debug)
-		g.Register(a)
-	}
-	g.startTime = time.Now()
-	g.gameDuration = 0
-	g.gameOver = false
-	g.kills = 0
+	a := agents.NewAsteroid(g.log,
+		int(nWidth.Int64()),
+		int(nHeight.Int64()),
+		g.ScreenWidth, g.ScreenHeight,
+		g.Register, g.Unregister,
+		g.debug)
+	g.Register(a)
 }
 
 // Restart cleans current game and a start a new game.
@@ -115,6 +122,8 @@ func (g *Game) Register(agent physics.Physic) {
 		g.starships[agent.ID()] = agent
 	case physics.AsteroidAgent:
 		g.asteroids[agent.ID()] = agent
+	case physics.RubbleAgent:
+		g.asteroids[agent.ID()] = agent
 	case physics.BulletAgent:
 		g.bullets[agent.ID()] = agent
 	default:
@@ -127,6 +136,8 @@ func (g *Game) Unregister(id, agentType string) {
 	case physics.StarshipAgent:
 		delete(g.starships, id)
 	case physics.AsteroidAgent:
+		delete(g.asteroids, id)
+	case physics.RubbleAgent:
 		delete(g.asteroids, id)
 	case physics.BulletAgent:
 		delete(g.bullets, id)
@@ -182,12 +193,23 @@ func (g *Game) Update() error {
 		bID, ok := asteroid.IntersectMultiple(bulletList)
 		if ok {
 			asteroid.Explode()
+			asteroidType := asteroid.Type()
 			delete(g.bullets, bID)
 			g.kills++
+			// Only add a new asteroids if the destroyed agent is also an asteroid (not a rubble)
+			if asteroidType == physics.AsteroidAgent {
+				g.AddAsteroid()
+			}
 		}
 	}
 	if len(g.starships) == 0 {
 		g.gameOver = true
+		g.gameWon = false
+	}
+
+	if len(g.asteroids) == 0 {
+		g.gameOver = true
+		g.gameWon = true
 	}
 
 	if !g.gameOver {
@@ -214,10 +236,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	if g.debug {
-		// Draw the message.
-		usage := "s: take a screenshot\nCmd + q: exit"
 		msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
-		msg += fmt.Sprintf("%s\n", usage)
 		ebitenutil.DebugPrint(screen, msg)
 	}
 
@@ -248,13 +267,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	)
 
 	if g.gameOver {
-		if g.gameDuration > g.highestDuration {
-			g.highestDuration = g.gameDuration
-		}
-		if g.Score() > g.highScore {
-			g.highScore = g.Score()
-		}
-
 		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 			g.Restart()
 		}
@@ -271,7 +283,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			color.Gray16{0xffff},
 		)
 
-		gameOver := "GAME OVER"
+		if g.gameDuration > g.highestDuration {
+			g.highestDuration = g.gameDuration
+		}
+		if g.Score() > g.highScore {
+			g.highScore = g.Score()
+		}
+
+		var gameOver string
+		if g.gameWon {
+			gameOver = "YOU WIN !"
+		} else {
+			gameOver = "GAME OVER"
+		}
+
 		gameOverTextDim := text.BoundString(fonts.KarmaticArcadeFont, gameOver)
 		gameOverTextWidth := gameOverTextDim.Max.X - gameOverTextDim.Min.X
 		gameOverTextHeight := gameOverTextDim.Max.Y - gameOverTextDim.Min.Y

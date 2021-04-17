@@ -7,7 +7,7 @@ import (
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/jtbonhomme/asteboids/internal/game"
+	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,23 +19,23 @@ const (
 // Bullet is a PhysicalBody agent
 // It represents a bullet shot by a starship agent.
 type Bullet struct {
-	game.PhysicBody
+	physics.PhysicBody
 	ttl int
 }
 
 // NewBullet creates a new Bullet (PhysicalBody agent)
-func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, screenHeight int, cb game.AgentUnregister) *Bullet {
+func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, screenHeight int, cb physics.AgentUnregister) *Bullet {
 	b := Bullet{
 		ttl: bulletTTL,
 	}
-	b.AgentType = game.BulletAgent
+	b.AgentType = physics.BulletAgent
 	b.Unregister = cb
 
 	b.Init()
 	b.Log = log
 
 	b.Orientation = orientation
-	b.Velocity = game.Vector{
+	b.Velocity = physics.Vector{
 		X: bulletVelocity * math.Cos(b.Orientation),
 		Y: bulletVelocity * math.Sin(b.Orientation),
 	}

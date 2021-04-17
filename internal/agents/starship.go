@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
-	"github.com/jtbonhomme/asteboids/internal/game"
+	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,27 +21,27 @@ const (
 // Starship is a PhysicalBody agent.
 // It represents a playable star ship.
 type Starship struct {
-	game.PhysicBody
+	physics.PhysicBody
 	bullets        map[string]*Bullet
 	lastBulletTime time.Time
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
-func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb game.AgentUnregister, debug bool) *Starship {
+func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb physics.AgentUnregister, debug bool) *Starship {
 	s := Starship{
 		bullets:        make(map[string]*Bullet),
 		lastBulletTime: time.Now(),
 	}
-	s.AgentType = game.StarshipAgent
+	s.AgentType = physics.StarshipAgent
 	s.Unregister = cb
 	s.Init()
 
 	s.Orientation = math.Pi / 2
-	s.Velocity = game.Vector{
+	s.Velocity = physics.Vector{
 		X: 0,
 		Y: 0,
 	}
-	s.Acceleration = game.Vector{
+	s.Acceleration = physics.Vector{
 		X: 0,
 		Y: 0,
 	}
@@ -119,9 +119,9 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 	}
 	if s.Debug {
 		msg := s.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont10, msg)
+		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont10, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
 	}
 }
 

@@ -1,4 +1,4 @@
-package game
+package physics
 
 import (
 	"errors"
@@ -23,6 +23,12 @@ const (
 	maxVelocity        float64 = 5.5
 	frictionFactor     float64 = 0.03
 	collisionPrecision float64 = 1.0
+)
+
+const (
+	StarshipAgent string = "starship"
+	AsteroidAgent string = "asteroid"
+	BulletAgent   string = "bullet"
 )
 
 // Size represents coordonnates (X, Y) of a physical body.
@@ -78,12 +84,6 @@ type Physic interface {
 
 // AgentUnregister is a function to unregister an agent
 type AgentUnregister func(string, string)
-
-const (
-	StarshipAgent string = "starship"
-	AsteroidAgent string = "asteroid"
-	BulletAgent   string = "bullet"
-)
 
 type PhysicBody struct {
 	Position
@@ -185,7 +185,7 @@ func (pb *PhysicBody) ID() string {
 // String displays physic body information as a string.
 func (pb *PhysicBody) String() string {
 	return fmt.Sprintf("%s: [%d, %d] [%d, %d]\n%0.2f rad (%0.0f °) {%0.2f %0.2f}",
-		pb.Type,
+		pb.Type(),
 		pb.X,
 		pb.Y,
 		pb.PhysicWidth,

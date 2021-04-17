@@ -19,3 +19,12 @@ $ make run
 ## Keyboard
 
 * `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)
+
+# Resources
+
+## Fonts
+
+Some fonts in this repository are copyright (c) Jakob Fischer at www.pizzadude.dk,  all rights reserved. 
+Do not distribute without the author's permission.
+Use these font for non-commercial use only! If you plan to use them for commercial purposes, contact the author before doing so!
+For more original fonts take a look at www.pizzadude.dk

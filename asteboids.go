@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/jtbonhomme/asteboids/internal/agents"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
@@ -15,22 +14,12 @@ const (
 
 func Run(log *logrus.Logger, optim, debug bool) error {
 	os.Setenv("EBITEN_SCREENSHOT_KEY", "s")
-	g := game.New(log)
+	g := game.New(log, maxAsteroids, debug)
 	log.Infof("Game: %s", g)
 	ebiten.SetWindowSize(g.ScreenWidth, g.ScreenHeight)
 	ebiten.SetWindowTitle("Asteboids")
 
-	// add starship
-	p := agents.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister, debug)
-	log.Infof("added starship: %s", p.ID())
-	g.Register(p)
-
-	// add asteroids
-	var nAsteroids int = maxAsteroids
-	for i := 0; i < nAsteroids; i++ {
-		p := agents.NewAsteroid(log, g.ScreenWidth, g.ScreenHeight, g.Unregister, debug)
-		g.Register(p)
-	}
+	g.Start()
 
 	if optim {
 		ebiten.SetVsyncEnabled(false)

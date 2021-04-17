@@ -12,7 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
-	"github.com/jtbonhomme/asteboids/internal/game"
+	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,20 +24,20 @@ const (
 // Asteroid is a PhysicalBody agent
 // It represents a bullet shot by a starship agent.
 type Asteroid struct {
-	game.PhysicBody
+	physics.PhysicBody
 }
 
 // NewAsteroid creates a new Asteroid (PhysicalBody agent)
-func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.AgentUnregister, debug bool) *Asteroid {
+func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb physics.AgentUnregister, debug bool) *Asteroid {
 	a := Asteroid{}
-	a.AgentType = game.AsteroidAgent
+	a.AgentType = physics.AsteroidAgent
 	a.Unregister = cb
 
 	a.Init()
 	a.Log = log
 
 	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
-	a.Velocity = game.Vector{
+	a.Velocity = physics.Vector{
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
 	}
@@ -85,9 +85,9 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 
 	if a.Debug {
 		msg := a.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont10, msg)
+		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont10, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.Gray16{0x999f})
 	}
 }
 

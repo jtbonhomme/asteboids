@@ -26,7 +26,8 @@ var karmaticArcadeFontData []byte
 //go:embed arcadeclassic.ttf
 var arcadeClassicFontData []byte
 
-var FurturisticRegularFont font.Face
+var FurturisticRegularFontTitle font.Face
+var FurturisticRegularFontMenu font.Face
 var MonoSansRegularFont font.Face
 var KarmaticArcadeFont font.Face
 var ArcadeClassicFont font.Face
@@ -38,8 +39,13 @@ func init() { //nolint:gochecknoinits, this init function does make sense to ini
 	if err != nil {
 		log.Fatal(err)
 	}
-	FurturisticRegularFont = truetype.NewFace(futuristicRegularFont, &truetype.Options{
-		Size:    55,
+	FurturisticRegularFontTitle = truetype.NewFace(futuristicRegularFont, &truetype.Options{
+		Size:    60,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	FurturisticRegularFontMenu = truetype.NewFace(futuristicRegularFont, &truetype.Options{
+		Size:    30,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})

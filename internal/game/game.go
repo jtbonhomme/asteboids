@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"math/big"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,7 +23,11 @@ const (
 
 type Game struct {
 	log             *logrus.Logger
+	gameOver        bool
 	nAsteroids      int
+	startTime       time.Time
+	gameDuration    time.Duration
+	maxGameDuration time.Duration
 	debug           bool
 	ScreenWidth     int
 	ScreenHeight    int
@@ -36,7 +41,11 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 	log.Infof("New Game")
 	return &Game{
 		log:             log,
+		gameOver:        false,
 		nAsteroids:      nAsteroids,
+		startTime:       time.Now(),
+		gameDuration:    0,
+		maxGameDuration: 0,
 		debug:           debug,
 		ScreenWidth:     defaultScreenWidth,
 		ScreenHeight:    defaultScreenHeight,
@@ -73,6 +82,9 @@ func (g *Game) Start() {
 			g.debug)
 		g.Register(a)
 	}
+	g.startTime = time.Now()
+	g.gameDuration = 0
+	g.gameOver = false
 }
 
 // Restart cleans current game and a start a new game.
@@ -85,6 +97,9 @@ func (g *Game) Restart() {
 	}
 	for k := range g.bullets {
 		delete(g.bullets, k)
+	}
+	if g.gameDuration > g.maxGameDuration {
+		g.maxGameDuration = g.gameDuration
 	}
 
 	g.Start()
@@ -114,7 +129,6 @@ func (g *Game) Unregister(id, agentType string) {
 		delete(g.bullets, id)
 	default:
 	}
-
 }
 
 // Agents returns a map that combine all registered agents
@@ -168,6 +182,13 @@ func (g *Game) Update() error {
 			delete(g.bullets, bID)
 		}
 	}
+	if len(g.starships) == 0 {
+		g.gameOver = true
+	}
+
+	if !g.gameOver {
+		g.gameDuration = time.Since(g.startTime).Round(time.Second)
+	}
 	return nil
 }
 
@@ -191,21 +212,33 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, msg)
 	}
 
-	if len(g.starships) == 0 {
+	// Time elapsed
+	elapsed := "Time elapsed " + g.gameDuration.String()
+	elapsedTextDim := text.BoundString(fonts.FurturisticRegularFontMenu, elapsed)
+	elapsedTextHeight := elapsedTextDim.Max.Y - elapsedTextDim.Min.Y
+	text.Draw(
+		screen,
+		elapsed,
+		fonts.FurturisticRegularFontMenu,
+		100,
+		elapsedTextHeight+10,
+		color.Gray16{0xffff},
+	)
+
+	if g.gameOver {
 		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 			g.Restart()
 		}
 		// Title
 		title := "Asteboids"
-		titleTextDim := text.BoundString(fonts.FurturisticRegularFont, title)
+		titleTextDim := text.BoundString(fonts.FurturisticRegularFontTitle, title)
 		titleTextWidth := titleTextDim.Max.X - titleTextDim.Min.X
-		titleTextHeight := titleTextDim.Max.Y - titleTextDim.Min.Y
 		text.Draw(
 			screen,
 			title,
-			fonts.FurturisticRegularFont,
+			fonts.FurturisticRegularFontTitle,
 			g.ScreenWidth/2-titleTextWidth/2,
-			3*titleTextHeight/2,
+			100,
 			color.Gray16{0xffff},
 		)
 

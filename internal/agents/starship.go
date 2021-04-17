@@ -26,7 +26,13 @@ type Starship struct {
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
-func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbr physics.AgentRegister, cbu physics.AgentUnregister, debug bool) *Starship {
+func NewStarship(
+	log *logrus.Logger,
+	x, y,
+	screenWidth, screenHeight int,
+	cbr physics.AgentRegister,
+	cbu physics.AgentUnregister,
+	debug bool) *Starship {
 	s := Starship{
 		lastBulletTime: time.Now(),
 	}

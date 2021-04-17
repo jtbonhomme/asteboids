@@ -31,7 +31,7 @@ var MonoSansRegularFont font.Face
 var KarmaticArcadeFont font.Face
 var ArcadeClassicFont font.Face
 
-func init() {
+func init() { //nolint:gochecknoinits, this init function does make sense to initialize embedded fonts
 	var err error
 
 	futuristicRegularFont, err := truetype.Parse(furturisticFontData)

@@ -1,12 +1,13 @@
 package agents
 
 import (
+	"crypto/rand"
 	"fmt"
+	"image/color"
 	"math"
-	"math/rand"
+	"math/big"
 
 	// anonymous import for png decoder
-	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -36,7 +37,11 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 	r.Init()
 	r.Log = log
 
-	r.Orientation = math.Pi / 16 * float64(rand.Intn(32))
+	nBig, err := rand.Int(rand.Reader, big.NewInt(32))
+	if err != nil {
+		r.Log.Fatal(err)
+	}
+	r.Orientation = math.Pi / 16 * float64(nBig.Int64())
 	r.Velocity = physics.Vector{
 		X: rubbleVelocity * math.Cos(r.Orientation),
 		Y: rubbleVelocity * math.Sin(r.Orientation),
@@ -49,8 +54,12 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 	r.X = x
 	r.Y = y
 
-	filename := fmt.Sprintf("./resources/images/rubble%d.png", rand.Intn(5))
-	err := r.LoadImage(filename)
+	nLittle, err := rand.Int(rand.Reader, big.NewInt(5))
+	if err != nil {
+		r.Log.Fatal(err)
+	}
+	filename := fmt.Sprintf("./resources/images/rubble%d.png", int(nLittle.Int64()))
+	err = r.LoadImage(filename)
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}

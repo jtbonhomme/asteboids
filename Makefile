@@ -10,7 +10,7 @@ lint: ## Execute Golangci-lint on the repo.
 	golangci-lint -v --deadline 100s --skip-dirs docs run ./...
 
 test: lint ## Go test the repo.
-	GIN_MODE=release go test ./... -cover -coverprofile coverage.out
+	go test ./... -cover -coverprofile coverage.out
 
 run: ## Run the main program.
 	go run cmd/asteboids/main.go

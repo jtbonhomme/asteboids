@@ -1,9 +1,10 @@
 package game
 
 import (
+	"crypto/rand"
 	"fmt"
 	"image/color"
-	"math/rand"
+	"math/big"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -53,11 +54,20 @@ func (g *Game) Start() {
 	g.log.Infof("added starship: %s", p.ID())
 	g.Register(p)
 
+	nWidth, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenWidth/2)))
+	if err != nil {
+		g.log.Fatal(err)
+	}
+	nHeight, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenHeight/2)))
+	if err != nil {
+		g.log.Fatal(err)
+	}
+
 	// add asteroids
 	for i := 0; i < g.nAsteroids; i++ {
 		a := agents.NewAsteroid(g.log,
-			rand.Intn(g.ScreenWidth/2),
-			rand.Intn(g.ScreenHeight/2),
+			int(nWidth.Int64()),
+			int(nHeight.Int64()),
 			g.ScreenWidth, g.ScreenHeight,
 			g.Register, g.Unregister,
 			g.debug)

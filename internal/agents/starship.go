@@ -53,7 +53,7 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 	s.Y = y
 	s.Log = log
 
-	err := s.LoadImage("./ressources/images/ship.png")
+	err := s.LoadImage("./resources/images/ship.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}

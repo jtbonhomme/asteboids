@@ -36,7 +36,7 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 	a.Init()
 	a.Log = log
 
-	a.Orientation = math.Pi / 8 * float64(rand.Intn(16))
+	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
 	a.Velocity = game.Vector{
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
@@ -49,7 +49,7 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 	a.X = rand.Intn(screenWidth)
 	a.Y = rand.Intn(screenHeight)
 
-	err := a.LoadImage(fmt.Sprintf("./ressources/images/asteroid%d.png", rand.Intn(5)))
+	err := a.LoadImage(fmt.Sprintf("./resources/images/asteroid%d_fill.png", rand.Intn(5)))
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}

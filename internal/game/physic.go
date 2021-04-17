@@ -22,6 +22,7 @@ const (
 	velocityFactor     float64 = 1.8
 	maxVelocity        float64 = 5.5
 	frictionFactor     float64 = 0.03
+	collisionPrecision float64 = 1.0
 )
 
 // Size represents coordonnates (X, Y) of a physical body.
@@ -67,14 +68,22 @@ type Physic interface {
 	Intersect(Physic) bool
 	// Dimensions returns physical body dimensions.
 	Dimension() Block
+	// Type returns physical body agent type as a string.
+	Type() string
 }
 
 // AgentUnregister is a function to unregister an agent
-type AgentUnregister func(string)
+type AgentUnregister func(string, string)
+
+const (
+	StarshipAgent string = "starship"
+	AsteroidAgent string = "asteroid"
+	BulletAgent   string = "bullet"
+)
 
 type PhysicBody struct {
 	Position
-	Type        string
+	AgentType   string
 	id          uuid.UUID
 	Log         *logrus.Logger
 	Orientation float64 // theta (radian)
@@ -213,13 +222,23 @@ func (pb *PhysicBody) LoadImage(file string) error {
 // Collision is computed based on Axis-Aligned Bounding Boxes.
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 func (pb *PhysicBody) Intersect(p Physic) bool {
-	aw, ah := pb.Dimension().W, pb.Dimension().H
 	ax, ay := pb.Dimension().X, pb.Dimension().Y
+	aw, ah := int(float64(pb.Dimension().W)*collisionPrecision), int(float64(pb.Dimension().H)*collisionPrecision)
 
 	bx, by := p.Dimension().X, p.Dimension().Y
-	bw, bh := p.Dimension().W, p.Dimension().H
+	bw, bh := int(float64(p.Dimension().W)*collisionPrecision), int(float64(p.Dimension().H)*collisionPrecision)
 
 	return (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
+}
+
+// IntersectMultiple checks if multiple physical bodies are colliding with the first
+func (pb *PhysicBody) IntersectMultiple(physics []Physic) bool {
+	for _, p := range physics {
+		if pb.Intersect(p) {
+			return true
+		}
+	}
+	return false
 }
 
 // Dimensions returns physical body dimensions.
@@ -273,4 +292,9 @@ func (pb *PhysicBody) DrawBodyBoundaryBox(screen *ebiten.Image) {
 		float64(pb.Y+pb.PhysicHeight/2),
 		color.Gray16{0x6666},
 	)
+}
+
+// Type returns physical body agent type as a string.
+func (pb *PhysicBody) Type() string {
+	return pb.AgentType
 }

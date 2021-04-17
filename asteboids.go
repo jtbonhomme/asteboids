@@ -24,7 +24,6 @@ func Run(log *logrus.Logger, optim, debug bool) error {
 	p := agents.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister, debug)
 	log.Infof("added starship: %+v", p)
 	g.Register(p)
-	g.StarshipID = p.ID()
 
 	// add asteroids
 	for i := 0; i < maxAsteroids; i++ {

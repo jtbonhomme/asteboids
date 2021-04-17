@@ -30,7 +30,7 @@ type Asteroid struct {
 // NewAsteroid creates a new Asteroid (PhysicalBody agent)
 func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.AgentUnregister, debug bool) *Asteroid {
 	a := Asteroid{}
-	a.Type = "asteroid"
+	a.AgentType = game.AsteroidAgent
 	a.Unregister = cb
 
 	a.Init()
@@ -93,5 +93,5 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 
 // SelfDestroy removes the agent from the game
 func (a *Asteroid) SelfDestroy() {
-	a.Unregister(a.ID())
+	a.Unregister(a.ID(), a.Type())
 }

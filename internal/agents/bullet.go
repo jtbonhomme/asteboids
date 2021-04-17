@@ -28,7 +28,7 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 	b := Bullet{
 		ttl: bulletTTL,
 	}
-	b.Type = "bullet"
+	b.AgentType = game.BulletAgent
 	b.Unregister = cb
 
 	b.Init()
@@ -86,5 +86,5 @@ func (b *Bullet) Draw(screen *ebiten.Image) {
 
 // SelfDestroy removes the agent from the game
 func (b *Bullet) SelfDestroy() {
-	b.Unregister(b.ID())
+	b.Unregister(b.ID(), b.Type())
 }

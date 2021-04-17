@@ -32,7 +32,7 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 		bullets:        make(map[string]*Bullet),
 		lastBulletTime: time.Now(),
 	}
-	s.Type = "starship"
+	s.AgentType = game.StarshipAgent
 	s.Unregister = cb
 	s.Init()
 
@@ -104,7 +104,7 @@ func (s *Starship) RegisterBullet() {
 }
 
 // Unregister deletes an bullet from the game.
-func (s *Starship) UnregisterBullet(id string) {
+func (s *Starship) UnregisterBullet(id, agentType string) {
 	delete(s.bullets, id)
 }
 
@@ -127,7 +127,7 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
-	defer s.Unregister(s.ID())
+	defer s.Unregister(s.ID(), s.Type())
 	s.Log.Infof("SelfDestroy starship %s", s.ID())
 }
 

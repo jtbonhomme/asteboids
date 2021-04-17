@@ -21,8 +21,9 @@ type Game struct {
 	ScreenWidth     int
 	ScreenHeight    int
 	backgroundColor color.RGBA
-	agents          map[string]Physic
-	StarshipID      string
+	starships       map[string]Physic
+	asteroids       map[string]Physic
+	bullets         map[string]Physic
 }
 
 func New(log *logrus.Logger) *Game {
@@ -32,18 +33,53 @@ func New(log *logrus.Logger) *Game {
 		ScreenWidth:     defaultScreenWidth,
 		ScreenHeight:    defaultScreenHeight,
 		backgroundColor: color.RGBA{0x00, 0x00, 0x00, 0xff},
-		agents:          make(map[string]Physic),
+		starships:       make(map[string]Physic),
+		asteroids:       make(map[string]Physic),
+		bullets:         make(map[string]Physic),
 	}
 }
 
 // Register adds a new agent (player or ai) to the game.
 func (g *Game) Register(agent Physic) {
-	g.agents[agent.ID()] = agent
+	switch agent.Type() {
+	case StarshipAgent:
+		g.starships[agent.ID()] = agent
+	case AsteroidAgent:
+		g.asteroids[agent.ID()] = agent
+	case BulletAgent:
+		g.bullets[agent.ID()] = agent
+	default:
+	}
 }
 
 // Unregister deletes an agent (player or ai) from the game.
-func (g *Game) Unregister(id string) {
-	delete(g.agents, id)
+func (g *Game) Unregister(id, agentType string) {
+	switch agentType {
+	case StarshipAgent:
+		delete(g.starships, id)
+	case AsteroidAgent:
+		delete(g.asteroids, id)
+	case BulletAgent:
+		delete(g.bullets, id)
+	default:
+	}
+
+}
+
+// Agents returns a map that combine all registered agents
+func (g *Game) Agents() map[string]Physic {
+	res := make(map[string]Physic)
+	for k, v := range g.starships {
+		res[k] = v
+	}
+	for k, v := range g.asteroids {
+		res[k] = v
+	}
+	for k, v := range g.bullets {
+		res[k] = v
+	}
+
+	return res
 }
 
 // Update proceeds the game state.
@@ -51,7 +87,7 @@ func (g *Game) Unregister(id string) {
 func (g *Game) Update() error {
 	// Write your game's logical update.
 	// Update the agents
-	for _, a := range g.agents {
+	for _, a := range g.Agents() {
 		a.Update()
 	}
 	return nil
@@ -72,14 +108,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	text.Draw(screen, title, fonts.FurturisticRegularFontTitle, g.ScreenWidth/2-textWidth/2, textHeight/2+20, color.Gray16{0xffff})
 
 	// Draw the agents
-	for _, a := range g.agents {
+	for _, a := range g.Agents() {
 		a.Draw(screen)
 	}
 	// Draw the message.
 	usage := "s: take a screenshot\nCmd + q: exit"
 	msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
 	msg += fmt.Sprintf("%s\n", usage)
-	msg += fmt.Sprintf("%s\n", g.agents[g.StarshipID])
 	ebitenutil.DebugPrint(screen, msg)
 }
 

@@ -1,3 +1,4 @@
 .DS_Store
 screenshot_*.png
 asteboids
+node_modules/

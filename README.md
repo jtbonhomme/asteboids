@@ -1,5 +1,12 @@
 # asteboids
 
+Asteboids is an 'asteroids'-like game.
+
+![](screen1.png)
+![](screen2.png)
+
+# A little bit of history
+
 [Asteroids](https://en.wikipedia.org/wiki/Asteroids_(video_game)) is a arcade game released in 1979 by [Atari, Inc](https://en.wikipedia.org/wiki/Atari,_Inc.). The player controls a single spaceship in an asteroid field. The object of the game is to shoot and destroy the asteroids, while not colliding with either. The game becomes harder as the number of asteroids increases.
 
 ![](asteroids-by-atari.jpg)
@@ -22,7 +29,9 @@ $ make run
 $ make debug
 ```
 
-## Keyboard
+![](screen3.png)
+
+## Keyboard control
 
 * `key up`: startship move forward
 * `key left`: startship rotate counter clockwise

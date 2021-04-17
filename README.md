@@ -1,5 +1,15 @@
 # asteboids
 
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
+
+[![GoReportCard example](https://goreportcard.com/badge/github.com/jtbonhomme/asteboids)](https://goreportcard.com/report/github.com/jtbonhomme/asteboids)
+
+![GitHub version](https://img.shields.io/badge/asteboids%20version-0.2.5-blue.svg)
+
+[![GoDoc](https://godoc.org/github.com/jtbonhomme/asteboids?status.svg)](https://godoc.org/github.com/jtbonhomme/asteboids)
+
+![gopherbadger-tag-do-not-edit](https://github.com/jtbonhomme/asteboids/blob/master/coverage_badge.png)
+
 Asteboids is an 'asteroids'-like game.
 
 ![](screen1.png)

@@ -2,3 +2,6 @@
 screenshot_*.png
 asteboids
 node_modules/
+cover.html
+cover.xml
+coverage.out

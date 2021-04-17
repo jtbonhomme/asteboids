@@ -28,6 +28,7 @@ const (
 const (
 	StarshipAgent string = "starship"
 	AsteroidAgent string = "asteroid"
+	RubbleAgent   string = "rubble"
 	BulletAgent   string = "bullet"
 )
 

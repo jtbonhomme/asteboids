@@ -22,18 +22,17 @@ const (
 // It represents a playable star ship.
 type Starship struct {
 	physics.PhysicBody
-	bullets        map[string]*Bullet
 	lastBulletTime time.Time
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
-func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb physics.AgentUnregister, debug bool) *Starship {
+func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbr physics.AgentRegister, cbu physics.AgentUnregister, debug bool) *Starship {
 	s := Starship{
-		bullets:        make(map[string]*Bullet),
 		lastBulletTime: time.Now(),
 	}
 	s.AgentType = physics.StarshipAgent
-	s.Unregister = cb
+	s.Register = cbr
+	s.Unregister = cbu
 	s.Init()
 
 	s.Orientation = math.Pi / 2
@@ -83,29 +82,19 @@ func (s *Starship) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		s.RegisterBullet()
-	}
-
-	// Update bullets
-	for _, b := range s.bullets {
-		b.Update()
+		s.Shot()
 	}
 }
 
-// Register adds a new bullet to the game.
-func (s *Starship) RegisterBullet() {
+// Shot adds a new bullet to the game.
+func (s *Starship) Shot() {
 	// throtlle call to avoid continuous shooting
 	if time.Since(s.lastBulletTime) < bulletThrottle {
 		return
 	}
 	s.lastBulletTime = time.Now()
-	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.UnregisterBullet)
-	s.bullets[bullet.ID()] = bullet
-}
-
-// Unregister deletes an bullet from the game.
-func (s *Starship) UnregisterBullet(id, agentType string) {
-	delete(s.bullets, id)
+	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.Unregister)
+	s.Register(bullet)
 }
 
 // Draw draws the game screen.
@@ -113,10 +102,6 @@ func (s *Starship) UnregisterBullet(id, agentType string) {
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.PhysicBody.Draw(screen)
 
-	// Update bullets
-	for _, b := range s.bullets {
-		b.Draw(screen)
-	}
 	if s.Debug {
 		msg := s.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
@@ -130,5 +115,3 @@ func (s *Starship) SelfDestroy() {
 	defer s.Explode()
 	s.Log.Infof("SelfDestroy starship %s", s.ID())
 }
-
-// todo unregister bullet as cb

@@ -73,7 +73,7 @@ type Physic interface {
 	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 	Intersect(Physic) bool
 	// IntersectMultiple checks if multiple physical bodies are colliding with the first
-	IntersectMultiple([]Physic) bool
+	IntersectMultiple([]Physic) (string, bool)
 	// Dimensions returns physical body dimensions.
 	Dimension() Block
 	// Type returns physical body agent type as a string.
@@ -81,6 +81,9 @@ type Physic interface {
 	// Explode proceeds the agent explosion and termination.
 	Explode()
 }
+
+// AgentRegister is a function to register an agent
+type AgentRegister func(Physic)
 
 // AgentUnregister is a function to unregister an agent
 type AgentUnregister func(string, string)
@@ -101,6 +104,7 @@ type PhysicBody struct {
 	Velocity     Vector
 	Acceleration Vector
 
+	Register   AgentRegister
 	Unregister AgentUnregister
 	Image      *ebiten.Image
 
@@ -232,26 +236,17 @@ func (pb *PhysicBody) Intersect(p Physic) bool {
 	bx, by := p.Dimension().X, p.Dimension().Y
 	bw, bh := int(float64(p.Dimension().W)*collisionPrecision), int(float64(p.Dimension().H)*collisionPrecision)
 
-	intersect := (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
-	if intersect {
-		pb.Log.Debugf("%s agent %s [%d, %d] (%d x %d) has collide with %s agent %s [%d, %d] (%d x %d)",
-			pb.Type(), pb.ID(),
-			ax, ay, aw, ah,
-			p.Type(), p.ID(),
-			bx, by, bw, bh,
-		)
-	}
-	return intersect
+	return (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
 }
 
 // IntersectMultiple checks if multiple physical bodies are colliding with the first
-func (pb *PhysicBody) IntersectMultiple(physics []Physic) bool {
+func (pb *PhysicBody) IntersectMultiple(physics []Physic) (string, bool) {
 	for _, p := range physics {
 		if pb.Intersect(p) {
-			return true
+			return p.ID(), true
 		}
 	}
-	return false
+	return "", false
 }
 
 // Dimensions returns physical body dimensions.
@@ -314,6 +309,5 @@ func (pb *PhysicBody) Type() string {
 
 // Explode proceeds the agent explosion and termination.
 func (pb *PhysicBody) Explode() {
-	defer pb.Unregister(pb.ID(), pb.Type())
-	pb.Log.Infof("%s agent %s exploded !", pb.Type(), pb.ID())
+	pb.Unregister(pb.ID(), pb.Type())
 }

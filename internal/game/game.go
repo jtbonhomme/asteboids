@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -48,14 +49,19 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 // Start initializes a new game.
 func (g *Game) Start() {
 	// add starship
-	p := agents.NewStarship(g.log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister, g.debug)
+	p := agents.NewStarship(g.log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Register, g.Unregister, g.debug)
 	g.log.Infof("added starship: %s", p.ID())
 	g.Register(p)
 
 	// add asteroids
 	for i := 0; i < g.nAsteroids; i++ {
-		p := agents.NewAsteroid(g.log, g.ScreenWidth, g.ScreenHeight, g.Unregister, g.debug)
-		g.Register(p)
+		a := agents.NewAsteroid(g.log,
+			rand.Intn(g.ScreenWidth/2),
+			rand.Intn(g.ScreenHeight/2),
+			g.ScreenWidth, g.ScreenHeight,
+			g.Register, g.Unregister,
+			g.debug)
+		g.Register(a)
 	}
 }
 
@@ -131,9 +137,25 @@ func (g *Game) Update() error {
 	for _, asteroid := range g.asteroids {
 		asteroidsList = append(asteroidsList, asteroid)
 	}
-	for _, a := range g.starships {
-		if a.IntersectMultiple(asteroidsList) {
-			a.Explode()
+	bulletList := []physics.Physic{}
+	for _, bullet := range g.bullets {
+		bulletList = append(bulletList, bullet)
+	}
+
+	// detect starship collision with asteroids
+	for _, starship := range g.starships {
+		_, ok := starship.IntersectMultiple(asteroidsList)
+		if ok {
+			starship.Explode()
+		}
+	}
+
+	// detect asteroid collision with bullet
+	for _, asteroid := range g.asteroids {
+		bID, ok := asteroid.IntersectMultiple(bulletList)
+		if ok {
+			asteroid.Explode()
+			delete(g.bullets, bID)
 		}
 	}
 	return nil

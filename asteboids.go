@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	maxAsteroids int = 6
+	maxAsteroids int = 3
 )
 
 func Run(log *logrus.Logger, optim, debug bool) error {
@@ -22,11 +22,12 @@ func Run(log *logrus.Logger, optim, debug bool) error {
 
 	// add starship
 	p := agents.NewStarship(log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Unregister, debug)
-	log.Infof("added starship: %+v", p)
+	log.Infof("added starship: %s", p.ID())
 	g.Register(p)
 
 	// add asteroids
-	for i := 0; i < maxAsteroids; i++ {
+	var nAsteroids int = maxAsteroids
+	for i := 0; i < nAsteroids; i++ {
 		p := agents.NewAsteroid(log, g.ScreenWidth, g.ScreenHeight, g.Unregister, debug)
 		g.Register(p)
 	}

@@ -90,6 +90,17 @@ func (g *Game) Update() error {
 	for _, a := range g.Agents() {
 		a.Update()
 	}
+	// Collision detection
+	// Convert map to slice of values.
+	asteroidsList := []Physic{}
+	for _, asteroid := range g.asteroids {
+		asteroidsList = append(asteroidsList, asteroid)
+	}
+	for _, a := range g.starships {
+		if a.IntersectMultiple(asteroidsList) {
+			a.Explode()
+		}
+	}
 	return nil
 }
 

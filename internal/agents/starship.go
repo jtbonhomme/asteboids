@@ -127,7 +127,7 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
-	defer s.Unregister(s.ID(), s.Type())
+	defer s.Explode()
 	s.Log.Infof("SelfDestroy starship %s", s.ID())
 }
 

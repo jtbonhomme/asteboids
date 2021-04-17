@@ -46,8 +46,8 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 	a.PhysicHeight = 100
 	a.ScreenWidth = screenWidth
 	a.ScreenHeight = screenHeight
-	a.X = rand.Intn(screenWidth)
-	a.Y = rand.Intn(screenHeight)
+	a.X = rand.Intn(screenWidth / 2)
+	a.Y = rand.Intn(screenHeight / 2)
 
 	err := a.LoadImage(fmt.Sprintf("./resources/images/asteroid%d_fill.png", rand.Intn(5)))
 	if err != nil {

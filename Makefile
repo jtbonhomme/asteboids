@@ -15,6 +15,9 @@ test: lint ## Go test the repo.
 run: ## Run the main program.
 	go run cmd/asteboids/main.go
 
+debug: ## Run the main program.
+	go run cmd/asteboids/main.go -debug
+
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)
 	gopherbadger

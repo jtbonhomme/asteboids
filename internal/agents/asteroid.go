@@ -11,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
@@ -48,7 +49,7 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 	a.X = rand.Intn(screenWidth)
 	a.Y = rand.Intn(screenHeight)
 
-	err := a.LoadImage(fmt.Sprintf("./assets/asteroid%d.png", rand.Intn(5)))
+	err := a.LoadImage(fmt.Sprintf("./ressources/images/asteroid%d.png", rand.Intn(5)))
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
@@ -83,7 +84,10 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 	defer a.PhysicBody.Draw(screen)
 
 	if a.Debug {
-		text.Draw(screen, a.String(), game.MplusNormalFont, a.X, a.Y-a.PhysicHeight/2+5, color.White)
+		msg := a.String()
+		textDim := text.BoundString(fonts.ExanRegularTTF, msg)
+		textWidth := textDim.Max.X - textDim.Min.X
+		text.Draw(screen, msg, fonts.ExanRegularTTF, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.White)
 	}
 }
 

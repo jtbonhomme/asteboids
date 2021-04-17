@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/game"
 	"github.com/sirupsen/logrus"
 )
@@ -51,7 +52,7 @@ func NewStarship(log *logrus.Logger, x, y, screenWidth, screenHeight int, cb gam
 	s.Y = y
 	s.Log = log
 
-	err := s.LoadImage("./assets/ship.png")
+	err := s.LoadImage("./ressources/images/ship.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
@@ -115,7 +116,10 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 		b.Draw(screen)
 	}
 	if s.Debug {
-		text.Draw(screen, s.String(), game.MplusNormalFont, s.X, s.Y-s.PhysicHeight/2+5, color.White)
+		msg := s.String()
+		textDim := text.BoundString(fonts.ExanRegularTTF, msg)
+		textWidth := textDim.Max.X - textDim.Min.X
+		text.Draw(screen, msg, fonts.ExanRegularTTF, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.White)
 	}
 }
 

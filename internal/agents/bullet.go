@@ -47,7 +47,7 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 	b.X = x
 	b.Y = y
 
-	err := b.LoadImage("./assets/bullet.png")
+	err := b.LoadImage("./ressources/images/bullet.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}

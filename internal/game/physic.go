@@ -147,7 +147,7 @@ func (a *PhysicBody) ID() string {
 
 // String displays physic body information as a string
 func (a *PhysicBody) String() string {
-	return fmt.Sprintf("%s: [%d, %d] %0.2f rad (%0.2f °)", a.Type, a.X, a.Y, a.Orientation, a.Orientation*180/math.Pi)
+	return fmt.Sprintf("%s x %d y %d\norientation %0.2f rad %0.2f °", a.Type, a.X, a.Y, a.Orientation, a.Orientation*180/math.Pi)
 }
 
 // LoadImage loads a picture in an ebiten image

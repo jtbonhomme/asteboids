@@ -19,6 +19,7 @@ import (
 const (
 	defaultScreenWidth  = 1080
 	defaultScreenHeight = 720
+	scoreTimeUnit       = 5
 )
 
 type Game struct {
@@ -27,7 +28,9 @@ type Game struct {
 	nAsteroids      int
 	startTime       time.Time
 	gameDuration    time.Duration
-	maxGameDuration time.Duration
+	highestDuration time.Duration
+	highScore       int
+	kills           int
 	debug           bool
 	ScreenWidth     int
 	ScreenHeight    int
@@ -45,7 +48,9 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 		nAsteroids:      nAsteroids,
 		startTime:       time.Now(),
 		gameDuration:    0,
-		maxGameDuration: 0,
+		kills:           0,
+		highScore:       0,
+		highestDuration: 0,
 		debug:           debug,
 		ScreenWidth:     defaultScreenWidth,
 		ScreenHeight:    defaultScreenHeight,
@@ -85,6 +90,7 @@ func (g *Game) Start() {
 	g.startTime = time.Now()
 	g.gameDuration = 0
 	g.gameOver = false
+	g.kills = 0
 }
 
 // Restart cleans current game and a start a new game.
@@ -97,9 +103,6 @@ func (g *Game) Restart() {
 	}
 	for k := range g.bullets {
 		delete(g.bullets, k)
-	}
-	if g.gameDuration > g.maxGameDuration {
-		g.maxGameDuration = g.gameDuration
 	}
 
 	g.Start()
@@ -180,6 +183,7 @@ func (g *Game) Update() error {
 		if ok {
 			asteroid.Explode()
 			delete(g.bullets, bID)
+			g.kills++
 		}
 	}
 	if len(g.starships) == 0 {
@@ -189,7 +193,12 @@ func (g *Game) Update() error {
 	if !g.gameOver {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)
 	}
+
 	return nil
+}
+
+func (g *Game) Score() int {
+	return int(g.gameDuration.Seconds()/scoreTimeUnit) + g.kills*2
 }
 
 // Draw draws the game screen.
@@ -225,7 +234,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		color.Gray16{0xffff},
 	)
 
+	// Score
+	score := fmt.Sprintf("Score %d", g.Score())
+	scoreTextDim := text.BoundString(fonts.FurturisticRegularFontMenu, elapsed)
+	scoreTextHeight := scoreTextDim.Max.Y - scoreTextDim.Min.Y
+	text.Draw(
+		screen,
+		score,
+		fonts.FurturisticRegularFontMenu,
+		900,
+		scoreTextHeight+10,
+		color.Gray16{0xffff},
+	)
+
 	if g.gameOver {
+		if g.gameDuration > g.highestDuration {
+			g.highestDuration = g.gameDuration
+		}
+		if g.Score() > g.highScore {
+			g.highScore = g.Score()
+		}
+
 		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 			g.Restart()
 		}

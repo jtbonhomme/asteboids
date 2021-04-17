@@ -21,7 +21,7 @@ var furturisticFontData []byte
 var monoSansFontData []byte
 
 var FurturisticRegularFontTitle font.Face
-var MonoSansRegularFont14 font.Face
+var MonoSansRegularFont10 font.Face
 
 func init() {
 	var err error
@@ -40,8 +40,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	MonoSansRegularFont14 = truetype.NewFace(monoSansRegularFont, &truetype.Options{
-		Size:    14,
+	MonoSansRegularFont10 = truetype.NewFace(monoSansRegularFont, &truetype.Options{
+		Size:    10,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})

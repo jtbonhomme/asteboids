@@ -13,52 +13,59 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	AccelerationFactor float64 = 0.3
+	accelerationFactor float64 = 0.3
 	velocityFactor     float64 = 1.8
 	maxVelocity        float64 = 5.5
 	frictionFactor     float64 = 0.03
 )
 
+// Size represents coordonnates (X, Y) of a physical body.
 type Position struct {
 	X int
 	Y int
 }
 
+// Size represents height and width of a physical body.
 type Size struct {
 	H int
 	W int
 }
 
+// Vector represents a vector composantes.
 type Vector struct {
 	X float64
 	Y float64
 }
 
+// Block is a dimension and position helper structure.
 type Block struct {
 	Position
 	Size
 }
 
 type Physic interface {
-	// Draw draws the agent on screen
+	// Draw draws the agent on screen.
 	Draw(*ebiten.Image)
-	// Update proceeds the agent state
+	// Update proceeds the agent state.
 	Update()
-	// Init initializes the physic body
+	// Init initializes the physic body.
 	Init()
-	// ID displays physic body unique ID
+	// ID displays physic body unique ID.
 	ID() string
-	// LoadImage loads a picture in an ebiten image
+	// LoadImage loads a picture in an ebiten image.
 	LoadImage(string) error
-	// String displays physic body information as a string
+	// String displays physic body information as a string.
 	String() string
-	// Intersect returns true if the physical body collide another one
+	// Intersect returns true if the physical body collide another one.
+	// Collision is computed based on Axis-Aligned Bounding Boxes.
+	// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 	Intersect(Physic) bool
-	// Dimensions returns physical body dimensions
+	// Dimensions returns physical body dimensions.
 	Dimension() Block
 }
 
@@ -96,10 +103,14 @@ func (pb *PhysicBody) Init() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (pb *PhysicBody) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
+	defer screen.DrawImage(pb.Image, op)
+
 	op.GeoM.Translate(float64(-pb.PhysicWidth/2), float64(-pb.PhysicHeight/2))
 	op.GeoM.Rotate(pb.Orientation)
 	op.GeoM.Translate(float64(pb.X), float64(pb.Y))
-	screen.DrawImage(pb.Image, op)
+	if pb.Debug {
+		pb.DrawBodyBoundaryBox(screen)
+	}
 }
 
 func (pb *PhysicBody) Rotate(rotationAngle float64) {
@@ -113,11 +124,11 @@ func (pb *PhysicBody) Rotate(rotationAngle float64) {
 }
 
 func (pb *PhysicBody) UpdateAcceleration(i float64) {
-	pb.Acceleration.X = AccelerationFactor * i * math.Cos(pb.Orientation)
-	pb.Acceleration.Y = AccelerationFactor * i * math.Sin(pb.Orientation)
+	pb.Acceleration.X = accelerationFactor * i * math.Cos(pb.Orientation)
+	pb.Acceleration.Y = accelerationFactor * i * math.Sin(pb.Orientation)
 }
 
-func (pb *PhysicBody) UpdateVelocity() {
+func (pb *PhysicBody) updateVelocity() {
 	pb.Velocity.X += pb.Acceleration.X - frictionFactor*pb.Velocity.X
 	pb.Velocity.Y += pb.Acceleration.Y - frictionFactor*pb.Velocity.Y
 
@@ -135,7 +146,7 @@ func (pb *PhysicBody) UpdateVelocity() {
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (pb *PhysicBody) Update() {
-	pb.UpdateVelocity()
+	pb.updateVelocity()
 
 	// update position
 	pb.X += int(velocityFactor * pb.Velocity.X)
@@ -153,17 +164,26 @@ func (pb *PhysicBody) Update() {
 	}
 }
 
-// ID displays physic body unique ID
+// ID displays physic body unique ID.
 func (pb *PhysicBody) ID() string {
 	return pb.id.String()
 }
 
-// String displays physic body information as a string
+// String displays physic body information as a string.
 func (pb *PhysicBody) String() string {
-	return fmt.Sprintf("%s: [%d, %d] %0.2f rad (%0.0f °)", pb.Type, pb.X, pb.Y, pb.Orientation, pb.Orientation*180/math.Pi)
+	return fmt.Sprintf("%s: [%d, %d] [%d, %d]\n%0.2f rad (%0.0f °) {%0.2f %0.2f}",
+		pb.Type,
+		pb.X,
+		pb.Y,
+		pb.PhysicWidth,
+		pb.PhysicHeight,
+		pb.Orientation,
+		pb.Orientation*180/math.Pi,
+		pb.Velocity.X,
+		pb.Velocity.Y)
 }
 
-// LoadImage loads a picture in an ebiten image
+// LoadImage loads a picture in an ebiten image.
 func (pb *PhysicBody) LoadImage(file string) error {
 	pb.Image = ebiten.NewImage(pb.ScreenWidth, pb.ScreenHeight)
 
@@ -189,7 +209,9 @@ func (pb *PhysicBody) LoadImage(file string) error {
 	return nil
 }
 
-// Intersect returns true if the physical body collide another one
+// Intersect returns true if the physical body collide another one.
+// Collision is computed based on Axis-Aligned Bounding Boxes.
+// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 func (pb *PhysicBody) Intersect(p Physic) bool {
 	aw, ah := pb.Dimension().W, pb.Dimension().H
 	ax, ay := pb.Dimension().X, pb.Dimension().Y
@@ -200,7 +222,7 @@ func (pb *PhysicBody) Intersect(p Physic) bool {
 	return (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
 }
 
-// Dimensions returns physical body dimensions
+// Dimensions returns physical body dimensions.
 func (pb *PhysicBody) Dimension() Block {
 	return Block{
 		Position{
@@ -212,4 +234,43 @@ func (pb *PhysicBody) Dimension() Block {
 			W: pb.PhysicWidth,
 		},
 	}
+}
+
+func (pb *PhysicBody) DrawBodyBoundaryBox(screen *ebiten.Image) {
+	// Top boundary
+	ebitenutil.DrawLine(
+		screen,
+		float64(pb.X-pb.PhysicWidth/2),
+		float64(pb.Y-pb.PhysicHeight/2),
+		float64(pb.X+pb.PhysicWidth/2),
+		float64(pb.Y-pb.PhysicHeight/2),
+		color.Gray16{0x6666},
+	)
+	// Right boundary
+	ebitenutil.DrawLine(
+		screen,
+		float64(pb.X+pb.PhysicWidth/2),
+		float64(pb.Y-pb.PhysicHeight/2),
+		float64(pb.X+pb.PhysicWidth/2),
+		float64(pb.Y+pb.PhysicHeight/2),
+		color.Gray16{0x6666},
+	)
+	// Bottom boundary
+	ebitenutil.DrawLine(
+		screen,
+		float64(pb.X-pb.PhysicWidth/2),
+		float64(pb.Y+pb.PhysicHeight/2),
+		float64(pb.X+pb.PhysicWidth/2),
+		float64(pb.Y+pb.PhysicHeight/2),
+		color.Gray16{0x6666},
+	)
+	// Left boundary
+	ebitenutil.DrawLine(
+		screen,
+		float64(pb.X-pb.PhysicWidth/2),
+		float64(pb.Y-pb.PhysicHeight/2),
+		float64(pb.X-pb.PhysicWidth/2),
+		float64(pb.Y+pb.PhysicHeight/2),
+		color.Gray16{0x6666},
+	)
 }

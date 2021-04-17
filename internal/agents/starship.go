@@ -112,15 +112,16 @@ func (s *Starship) UnregisterBullet(id string) {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.PhysicBody.Draw(screen)
+
 	// Update bullets
 	for _, b := range s.bullets {
 		b.Draw(screen)
 	}
 	if s.Debug {
 		msg := s.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont14, msg)
+		textDim := text.BoundString(fonts.MonoSansRegularFont10, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont14, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont10, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
 	}
 }
 

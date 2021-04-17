@@ -18,6 +18,9 @@ run: ## Run the main program.
 debug: ## Run the main program.
 	go run cmd/asteboids/main.go -debug
 
+build: ## Build the main program.
+	go build -o asteboids cmd/asteboids/main.go
+
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)
 	gopherbadger

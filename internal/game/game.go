@@ -6,6 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,6 +63,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Write your game's rendering.
 	// Draw the ground image.
 	screen.Fill(g.backgroundColor)
+
+	// Title
+	title := "Asteboids"
+	textDim := text.BoundString(fonts.FurturisticRegularFontTitle, title)
+	textWidth := textDim.Max.X - textDim.Min.X
+	textHeight := textDim.Max.Y - textDim.Min.Y
+	text.Draw(screen, title, fonts.FurturisticRegularFontTitle, g.ScreenWidth/2-textWidth/2, textHeight/2+20, color.Gray16{0xffff})
 
 	// Draw the agents
 	for _, a := range g.agents {

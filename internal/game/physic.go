@@ -20,7 +20,6 @@ const (
 	AccelerationFactor float64 = 0.3
 	velocityFactor     float64 = 1.8
 	maxVelocity        float64 = 5.5
-	rotationAngle      float64 = math.Pi / 36 // rotation of 5°
 	frictionFactor     float64 = 0.03
 )
 
@@ -89,8 +88,8 @@ func (a *PhysicBody) Draw(screen *ebiten.Image) {
 	screen.DrawImage(a.Image, op)
 }
 
-func (a *PhysicBody) Rotate(i float64) {
-	a.Orientation += i * rotationAngle
+func (a *PhysicBody) Rotate(rotationAngle float64) {
+	a.Orientation += rotationAngle
 	if a.Orientation > 2*math.Pi {
 		a.Orientation -= 2 * math.Pi
 	}
@@ -147,7 +146,7 @@ func (a *PhysicBody) ID() string {
 
 // String displays physic body information as a string
 func (a *PhysicBody) String() string {
-	return fmt.Sprintf("%s x %d y %d\norientation %0.2f rad %0.2f °", a.Type, a.X, a.Y, a.Orientation, a.Orientation*180/math.Pi)
+	return fmt.Sprintf("%s: [%d, %d] %0.2f rad (%0.0f °)", a.Type, a.X, a.Y, a.Orientation, a.Orientation*180/math.Pi)
 }
 
 // LoadImage loads a picture in an ebiten image

@@ -11,24 +11,37 @@ import (
 )
 
 const (
-	dpi  float64 = 72
-	size float64 = 20
+	dpi float64 = 72
 )
 
 //go:embed Exan-Regular.ttf
-var fontData []byte
+var furturisticFontData []byte
 
-var ExanRegularTTF font.Face
+//go:embed NotoMono-Regular.ttf
+var monoSansFontData []byte
+
+var FurturisticRegularFontTitle font.Face
+var MonoSansRegularFont14 font.Face
 
 func init() {
 	var err error
 
-	exanRegularFont, err := truetype.Parse(fontData)
+	futuristicRegularFont, err := truetype.Parse(furturisticFontData)
 	if err != nil {
 		log.Fatal(err)
 	}
-	ExanRegularTTF = truetype.NewFace(exanRegularFont, &truetype.Options{
-		Size:    size,
+	FurturisticRegularFontTitle = truetype.NewFace(futuristicRegularFont, &truetype.Options{
+		Size:    40,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+
+	monoSansRegularFont, err := truetype.Parse(monoSansFontData)
+	if err != nil {
+		log.Fatal(err)
+	}
+	MonoSansRegularFont14 = truetype.NewFace(monoSansRegularFont, &truetype.Options{
+		Size:    14,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})

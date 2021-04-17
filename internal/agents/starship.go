@@ -15,6 +15,7 @@ import (
 
 const (
 	bulletThrottle time.Duration = 100 * time.Millisecond
+	rotationAngle  float64       = math.Pi / 36 // rotation of 5°
 )
 
 // Starship is a PhysicalBody agent.
@@ -66,9 +67,9 @@ func (s *Starship) Update() {
 	defer s.PhysicBody.Update()
 
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		s.Rotate(-1)
+		s.Rotate(-rotationAngle)
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		s.Rotate(1)
+		s.Rotate(rotationAngle)
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
@@ -117,9 +118,9 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 	}
 	if s.Debug {
 		msg := s.String()
-		textDim := text.BoundString(fonts.ExanRegularTTF, msg)
+		textDim := text.BoundString(fonts.MonoSansRegularFont14, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.ExanRegularTTF, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.White)
+		text.Draw(screen, msg, fonts.MonoSansRegularFont14, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
 	}
 }
 

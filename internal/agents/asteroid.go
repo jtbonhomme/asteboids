@@ -61,7 +61,7 @@ func NewAsteroid(log *logrus.Logger, screenWidth, screenHeight int, cb game.Agen
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (a *Asteroid) Update() {
-	a.Orientation += rotationSpeed
+	a.Rotate(rotationSpeed)
 	// update position
 	a.X += int(a.Velocity.X)
 	a.Y += int(a.Velocity.Y)
@@ -85,9 +85,9 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 
 	if a.Debug {
 		msg := a.String()
-		textDim := text.BoundString(fonts.ExanRegularTTF, msg)
+		textDim := text.BoundString(fonts.MonoSansRegularFont14, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.ExanRegularTTF, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.White)
+		text.Draw(screen, msg, fonts.MonoSansRegularFont14, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.Gray16{0x999f})
 	}
 }
 

@@ -16,9 +16,21 @@ The 2D game engine is [ebiten](https://ebiten.org/): A dead simple 2D game libra
 $ make run
 ```
 
+# Run with debug information
+
+```sh
+$ make debug
+```
+
 ## Keyboard
 
+* `key up`: startship move forward
+* `key left`: startship rotate counter clockwise
+* `key right`: startship rotate clockwise
+* `space`: startship shot
+* `enter`: game restart
 * `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)
+* `cmd+q`: exit
 
 # Resources
 

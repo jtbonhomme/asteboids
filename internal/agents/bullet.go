@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	bulletVelocity float64 = 19.0
+	bulletVelocity float64 = 20.0
 	bulletTTL      int     = 30
 )
 
@@ -24,7 +24,12 @@ type Bullet struct {
 }
 
 // NewBullet creates a new Bullet (PhysicalBody agent)
-func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, screenHeight int, cb physics.AgentUnregister) *Bullet {
+func NewBullet(log *logrus.Logger,
+	x, y float64,
+	orientation float64,
+	screenWidth, screenHeight float64,
+	cb physics.AgentUnregister,
+	bulletImage *ebiten.Image) *Bullet {
 	b := Bullet{
 		ttl: bulletTTL,
 	}
@@ -46,11 +51,7 @@ func NewBullet(log *logrus.Logger, x, y int, orientation float64, screenWidth, s
 	b.ScreenHeight = screenHeight
 	b.X = x
 	b.Y = y
-
-	err := b.LoadImage("./resources/images/bullet.png")
-	if err != nil {
-		log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	b.Image = bulletImage
 	return &b
 }
 
@@ -63,8 +64,8 @@ func (b *Bullet) Update() {
 		b.SelfDestroy()
 	}
 	// update position
-	b.X += int(b.Velocity.X)
-	b.Y += int(b.Velocity.Y)
+	b.X += b.Velocity.X
+	b.Y += b.Velocity.Y
 
 	if b.X > b.ScreenWidth {
 		b.X = 0

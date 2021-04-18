@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	bulletThrottle time.Duration = 100 * time.Millisecond
+	bulletThrottle time.Duration = 200 * time.Millisecond
 	rotationAngle  float64       = math.Pi / 36 // rotation of 5°
 )
 
@@ -23,15 +23,18 @@ const (
 type Starship struct {
 	physics.PhysicBody
 	lastBulletTime time.Time
+	bulletImage    *ebiten.Image
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
 func NewStarship(
 	log *logrus.Logger,
 	x, y,
-	screenWidth, screenHeight int,
+	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
+	starshipImage *ebiten.Image,
+	bulletImage *ebiten.Image,
 	debug bool) *Starship {
 	s := Starship{
 		lastBulletTime: time.Now(),
@@ -58,10 +61,9 @@ func NewStarship(
 	s.Y = y
 	s.Log = log
 
-	err := s.LoadImage("./resources/images/ship.png")
-	if err != nil {
-		log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	s.Image = starshipImage
+	s.bulletImage = bulletImage
+
 	s.Debug = debug
 	return &s
 }
@@ -99,7 +101,14 @@ func (s *Starship) Shot() {
 		return
 	}
 	s.lastBulletTime = time.Now()
-	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.Unregister)
+
+	bullet := NewBullet(s.Log,
+		s.X, s.Y,
+		s.Orientation,
+		s.ScreenWidth,
+		s.ScreenHeight,
+		s.Unregister,
+		s.bulletImage)
 	s.Register(bullet)
 }
 
@@ -112,12 +121,12 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 		msg := s.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.X)-textWidth/2, int(s.Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
 	defer s.Explode()
-	s.Log.Infof("SelfDestroy starship %s", s.ID())
+	s.Log.Debugf("SelfDestroy starship %s", s.ID())
 }

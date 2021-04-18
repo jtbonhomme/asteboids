@@ -1,6 +1,6 @@
 {
   branches: ["master", "semver"],
-  repositoryUrl: "https://github.com/jtbonhomme/gotp",
+  repositoryUrl: "https://github.com/jtbonhomme/asteboids",
   verifyConditions: [
     {
       path: "@semantic-release/github"

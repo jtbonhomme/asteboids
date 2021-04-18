@@ -1,11 +1,9 @@
 package agents
 
 import (
-	"crypto/rand"
-	"fmt"
 	"image/color"
 	"math"
-	"math/big"
+	"math/rand"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -29,7 +27,12 @@ type Rubble struct {
 }
 
 // NewRubble creates a new Rubble (PhysicalBody agent)
-func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu physics.AgentUnregister, debug bool) *Rubble {
+func NewRubble(log *logrus.Logger,
+	x, y,
+	screenWidth, screenHeight float64,
+	cbu physics.AgentUnregister,
+	rubbleImage *ebiten.Image,
+	debug bool) *Rubble {
 	r := Rubble{}
 	r.AgentType = physics.RubbleAgent
 	r.Unregister = cbu
@@ -37,11 +40,7 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 	r.Init()
 	r.Log = log
 
-	nBig, err := rand.Int(rand.Reader, big.NewInt(32))
-	if err != nil {
-		r.Log.Fatal(err)
-	}
-	r.Orientation = math.Pi / 16 * float64(nBig.Int64())
+	r.Orientation = math.Pi / 16 * float64(rand.Intn(32))
 	r.Velocity = physics.Vector{
 		X: rubbleVelocity * math.Cos(r.Orientation),
 		Y: rubbleVelocity * math.Sin(r.Orientation),
@@ -54,15 +53,8 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 	r.X = x
 	r.Y = y
 
-	nLittle, err := rand.Int(rand.Reader, big.NewInt(5))
-	if err != nil {
-		r.Log.Fatal(err)
-	}
-	filename := fmt.Sprintf("./resources/images/rubble%d.png", int(nLittle.Int64()))
-	err = r.LoadImage(filename)
-	if err != nil {
-		log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	/*filename := fmt.Sprintf("./resources/images/rubble%d.png", rand.Intn(5))*/
+	r.Image = rubbleImage
 	r.Debug = debug
 	return &r
 }
@@ -73,8 +65,8 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 func (r *Rubble) Update() {
 	r.Rotate(rubbleRotationSpeed)
 	// update position
-	r.X += int(r.Velocity.X)
-	r.Y += int(r.Velocity.Y)
+	r.X += r.Velocity.X
+	r.Y += r.Velocity.Y
 
 	if r.X > r.ScreenWidth {
 		r.X = 0
@@ -97,7 +89,7 @@ func (r *Rubble) Draw(screen *ebiten.Image) {
 		msg := r.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, r.X-textWidth/2, r.Y+r.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(r.X)-textWidth/2, int(r.Y+r.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 

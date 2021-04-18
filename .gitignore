@@ -5,3 +5,5 @@ node_modules/
 cover.html
 cover.xml
 coverage.out
+*.prof
+profile*.png

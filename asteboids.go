@@ -16,10 +16,10 @@ func Run(log *logrus.Logger, optim, debug bool) error {
 	os.Setenv("EBITEN_SCREENSHOT_KEY", "s")
 	g := game.New(log, nAsteroids, debug)
 	log.Infof("Game: %s", g)
-	ebiten.SetWindowSize(g.ScreenWidth, g.ScreenHeight)
+	ebiten.SetWindowSize(int(g.ScreenWidth), int(g.ScreenHeight))
 	ebiten.SetWindowTitle("Asteboids")
 
-	g.Start()
+	g.StartGame()
 
 	if optim {
 		ebiten.SetVsyncEnabled(false)

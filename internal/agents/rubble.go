@@ -29,7 +29,11 @@ type Rubble struct {
 }
 
 // NewRubble creates a new Rubble (PhysicalBody agent)
-func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu physics.AgentUnregister, debug bool) *Rubble {
+func NewRubble(log *logrus.Logger,
+	x, y,
+	screenWidth, screenHeight float64,
+	cbu physics.AgentUnregister,
+	debug bool) *Rubble {
 	r := Rubble{}
 	r.AgentType = physics.RubbleAgent
 	r.Unregister = cbu
@@ -73,8 +77,8 @@ func NewRubble(log *logrus.Logger, x, y, screenWidth, screenHeight int, cbu phys
 func (r *Rubble) Update() {
 	r.Rotate(rubbleRotationSpeed)
 	// update position
-	r.X += int(r.Velocity.X)
-	r.Y += int(r.Velocity.Y)
+	r.X += r.Velocity.X
+	r.Y += r.Velocity.Y
 
 	if r.X > r.ScreenWidth {
 		r.X = 0
@@ -97,7 +101,7 @@ func (r *Rubble) Draw(screen *ebiten.Image) {
 		msg := r.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, r.X-textWidth/2, r.Y+r.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(r.X)-textWidth/2, int(r.Y+r.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 

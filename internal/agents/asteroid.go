@@ -33,7 +33,7 @@ type Asteroid struct {
 func NewAsteroid(
 	log *logrus.Logger,
 	x, y,
-	screenWidth, screenHeight int,
+	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
 	debug bool) *Asteroid {
@@ -81,8 +81,8 @@ func NewAsteroid(
 func (a *Asteroid) Update() {
 	a.Rotate(asteroidRotationSpeed)
 	// update position
-	a.X += int(a.Velocity.X)
-	a.Y += int(a.Velocity.Y)
+	a.X += a.Velocity.X
+	a.Y += a.Velocity.Y
 
 	if a.X > a.ScreenWidth {
 		a.X = 0
@@ -105,7 +105,7 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 		msg := a.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, a.X-textWidth/2, a.Y+a.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(a.X)-textWidth/2, int(a.Y+a.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	bulletThrottle time.Duration = 100 * time.Millisecond
+	bulletThrottle time.Duration = 200 * time.Millisecond
 	rotationAngle  float64       = math.Pi / 36 // rotation of 5°
 )
 
@@ -29,7 +29,7 @@ type Starship struct {
 func NewStarship(
 	log *logrus.Logger,
 	x, y,
-	screenWidth, screenHeight int,
+	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
 	debug bool) *Starship {
@@ -112,12 +112,12 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 		msg := s.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, s.X-textWidth/2, s.Y+s.PhysicHeight/2+5, color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.X)-textWidth/2, int(s.Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
 	defer s.Explode()
-	s.Log.Infof("SelfDestroy starship %s", s.ID())
+	s.Log.Debugf("SelfDestroy starship %s", s.ID())
 }

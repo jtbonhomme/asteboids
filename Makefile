@@ -18,6 +18,9 @@ run: ## Run the main program.
 debug: ## Run the main program.
 	go run cmd/asteboids/main.go -debug
 
+pprof: ## Run the main program with profiling.
+	go run cmd/asteboids/main.go -debug -cpuprofile profile.prof
+
 build: ## Build the main program.
 	go build -o asteboids cmd/asteboids/main.go
 

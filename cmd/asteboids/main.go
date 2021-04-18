@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"os"
+	"runtime/pprof"
 
 	"github.com/dimiro1/banner"
 	"github.com/jtbonhomme/asteboids"
@@ -11,10 +13,23 @@ import (
 )
 
 func main() {
+	log := logrus.New()
+
+	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
 	debug := flag.Bool("debug", false, "Debug log level")
 	optim := flag.Bool("optim", false, "Optimized mode")
 	flag.Parse()
-
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 	isEnabled := true
 	isColorEnabled := true
 	templ := `{{ .Title "Asteboids" "" 4 }}
@@ -25,7 +40,6 @@ Asteboids Version: ` + version.Read().Tag + `
 
 `
 	banner.InitString(colorable.NewColorableStdout(), isEnabled, isColorEnabled, templ)
-	log := logrus.New()
 
 	if *debug {
 		log.SetLevel(logrus.DebugLevel)
@@ -35,6 +49,6 @@ Asteboids Version: ` + version.Read().Tag + `
 
 	err := asteboids.Run(log, *optim, *debug)
 	if err != nil {
-		log.Fatalf("error while running asteboids: %s", err.Error())
+		log.Panic("error while running asteboids: ", err)
 	}
 }

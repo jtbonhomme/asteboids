@@ -1,11 +1,9 @@
 package agents
 
 import (
-	"crypto/rand"
-	"fmt"
 	"image/color"
 	"math"
-	"math/big"
+	"math/rand"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -27,6 +25,7 @@ const (
 // It represents a bullet shot by a starship agent.
 type Asteroid struct {
 	physics.PhysicBody
+	rubbleImages []*ebiten.Image
 }
 
 // NewAsteroid creates a new Asteroid (PhysicalBody agent)
@@ -36,6 +35,8 @@ func NewAsteroid(
 	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
+	asteroidImage *ebiten.Image,
+	rubbleImages []*ebiten.Image,
 	debug bool) *Asteroid {
 	a := Asteroid{}
 	a.AgentType = physics.AsteroidAgent
@@ -45,11 +46,7 @@ func NewAsteroid(
 	a.Init()
 	a.Log = log
 
-	nBig, err := rand.Int(rand.Reader, big.NewInt(32))
-	if err != nil {
-		a.Log.Fatal(err)
-	}
-	a.Orientation = math.Pi / 16 * float64(nBig.Int64())
+	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
 	a.Velocity = physics.Vector{
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
@@ -62,15 +59,8 @@ func NewAsteroid(
 	a.X = x
 	a.Y = y
 
-	nLittle, err := rand.Int(rand.Reader, big.NewInt(5))
-	if err != nil {
-		log.Fatal(err)
-	}
-	filename := fmt.Sprintf("./resources/images/asteroid%d_fill.png", int(nLittle.Int64()))
-	err = a.LoadImage(filename)
-	if err != nil {
-		a.Log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	a.Image = asteroidImage
+	a.rubbleImages = rubbleImages
 	a.Debug = debug
 	return &a
 }
@@ -121,6 +111,7 @@ func (a *Asteroid) Explode() {
 			a.Y,
 			a.ScreenWidth, a.ScreenHeight,
 			a.Unregister,
+			a.rubbleImages[rand.Intn(5)],
 			a.Debug)
 		a.Register(rubble)
 	}

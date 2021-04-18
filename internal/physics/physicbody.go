@@ -1,12 +1,9 @@
 package physics
 
 import (
-	"errors"
 	"fmt"
-	"image"
 	"image/color"
 	"math"
-	"os"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -127,32 +124,6 @@ func (pb *PhysicBody) String() string {
 		pb.Orientation*180/math.Pi,
 		pb.Velocity.X,
 		pb.Velocity.Y)
-}
-
-// LoadImage loads a picture in an ebiten image.
-func (pb *PhysicBody) LoadImage(file string) error {
-	pb.Image = ebiten.NewImage(int(pb.ScreenWidth), int(pb.ScreenHeight))
-
-	f, err := os.Open(file)
-	if err != nil {
-		pb.Image.Fill(color.White)
-		return errors.New("error when opening file " + err.Error())
-	}
-
-	defer f.Close()
-	rawImage, _, err := image.Decode(f)
-	if err != nil {
-		pb.Image.Fill(color.White)
-		return errors.New("error when decoding image from file " + err.Error())
-	}
-
-	newImage := ebiten.NewImageFromImage(rawImage)
-	if newImage == nil {
-		pb.Image.Fill(color.White)
-		return errors.New("error when creating image from raw " + err.Error())
-	}
-	pb.Image.DrawImage(newImage, nil)
-	return nil
 }
 
 // Intersect returns true if the physical body collide another one.

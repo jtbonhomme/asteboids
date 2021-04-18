@@ -1,12 +1,15 @@
 package game
 
 import (
-	"crypto/rand"
+	"errors"
 	"fmt"
+	"image"
 	"image/color"
-	"math/big"
+	"math/rand"
+	"os"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/agents"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
@@ -17,7 +20,6 @@ const (
 	defaultScreenHeight        float64 = 720
 	scoreTimeUnit              float64 = 5
 	autoGenerateAsteroidsRatio float64 = 10
-	preComputedRandoms         int     = 1000
 )
 
 type Game struct {
@@ -37,13 +39,15 @@ type Game struct {
 	starships       map[string]physics.Physic
 	asteroids       map[string]physics.Physic
 	bullets         map[string]physics.Physic
-	randomsWidth    []float64
-	randomsHeight   []float64
-	randomIndex     int
+	starshipImage   *ebiten.Image
+	bulletImage     *ebiten.Image
+	asteroidImages  []*ebiten.Image
+	rubbleImages    []*ebiten.Image
 }
 
 func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 	log.Infof("New Game")
+	rand.Seed(time.Now().UnixNano())
 	g := &Game{
 		log:             log,
 		gameOver:        false,
@@ -61,36 +65,82 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 		starships:       make(map[string]physics.Physic),
 		asteroids:       make(map[string]physics.Physic),
 		bullets:         make(map[string]physics.Physic),
-		randomsWidth:    make([]float64, preComputedRandoms),
-		randomsHeight:   make([]float64, preComputedRandoms),
-		randomIndex:     0,
+		asteroidImages:  make([]*ebiten.Image, 5),
+		rubbleImages:    make([]*ebiten.Image, 5),
 	}
-	for i := 0; i < preComputedRandoms; i++ {
-		nWidth, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenWidth)))
-		if err != nil {
-			g.log.Fatal(err)
-		}
-		g.randomsWidth[i] = float64(nWidth.Int64())
 
-		nHeight, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenHeight/4)))
+	for i := 0; i < 5; i++ {
+		aFilename := fmt.Sprintf("./resources/images/asteroid%d.png", i)
+		asteroidImage, err := g.LoadImage(aFilename)
 		if err != nil {
-			g.log.Fatal(err)
+			log.Errorf("error when loading image from file: %s", err.Error())
 		}
-		g.randomsHeight[i] = float64(nHeight.Int64())
+		g.asteroidImages[i] = asteroidImage
+		rFilename := fmt.Sprintf("./resources/images/rubble%d.png", i)
+		rubbleImage, err := g.LoadImage(rFilename)
+		if err != nil {
+			log.Errorf("error when loading image from file: %s", err.Error())
+		}
+		g.rubbleImages[i] = rubbleImage
 	}
+	starshipImage, err := g.LoadImage("./resources/images/ship.png")
+	if err != nil {
+		log.Errorf("error when loading image from file: %s", err.Error())
+	}
+	g.starshipImage = starshipImage
+	bulletImage, err := g.LoadImage("./resources/images/bullet.png")
+	if err != nil {
+		log.Errorf("error when loading image from file: %s", err.Error())
+	}
+	g.bulletImage = bulletImage
 	return g
+}
+
+// LoadImage loads a picture into an ebiten image.
+func (g *Game) LoadImage(file string) (*ebiten.Image, error) {
+	newImage := ebiten.NewImage(int(g.ScreenWidth), int(g.ScreenHeight))
+
+	f, err := os.Open(file)
+	if err != nil {
+		newImage.Fill(color.White)
+		return newImage, errors.New("error when opening file " + err.Error())
+	}
+
+	defer f.Close()
+	rawImage, _, err := image.Decode(f)
+	if err != nil {
+		newImage.Fill(color.White)
+		return newImage, errors.New("error when decoding image from file " + err.Error())
+	}
+
+	newImageFromImage := ebiten.NewImageFromImage(rawImage)
+	if newImageFromImage == nil {
+		return newImage, errors.New("error when creating image from raw " + err.Error())
+	}
+	newImage.DrawImage(newImageFromImage, nil)
+	return newImage, nil
 }
 
 // StartGame initializes a new game.
 func (g *Game) StartGame() {
 	// add starship
-	p := agents.NewStarship(g.log, g.ScreenWidth/2, g.ScreenHeight/2, g.ScreenWidth, g.ScreenHeight, g.Register, g.Unregister, g.debug)
+	p := agents.NewStarship(
+		g.log,
+		g.ScreenWidth/2,
+		g.ScreenHeight/2,
+		g.ScreenWidth,
+		g.ScreenHeight,
+		g.Register,
+		g.Unregister,
+		g.starshipImage,
+		g.bulletImage,
+		g.debug)
 	g.log.Debugf("added starship: %s", p.ID())
 	g.Register(p)
 
 	// add asteroids
 	for i := 0; i < g.nAsteroids; i++ {
-		g.AddAsteroid()
+		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
 	g.startTime = time.Now()
 	g.gameDuration = 0
@@ -100,18 +150,16 @@ func (g *Game) StartGame() {
 }
 
 // AddAsteroid insert a new asteroid in the game.
-func (g *Game) AddAsteroid() {
+func (g *Game) AddAsteroid(asteroidImage *ebiten.Image) {
 	a := agents.NewAsteroid(g.log,
-		g.randomsWidth[g.randomIndex],
-		g.randomsHeight[g.randomIndex],
+		float64(rand.Intn(int(g.ScreenWidth))),
+		float64(rand.Intn(int(g.ScreenHeight/4))),
 		g.ScreenWidth, g.ScreenHeight,
 		g.Register, g.Unregister,
+		asteroidImage,
+		g.rubbleImages,
 		g.debug)
 	g.Register(a)
-	g.randomIndex++
-	if g.randomIndex > preComputedRandoms {
-		g.randomIndex = 0
-	}
 }
 
 // RestartGame cleans current game and a start a new game.

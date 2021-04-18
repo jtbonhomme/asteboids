@@ -1,6 +1,7 @@
 package game
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/jtbonhomme/asteboids/internal/physics"
@@ -44,7 +45,7 @@ func (g *Game) Update() error {
 			g.kills++
 			// Only add a new asteroids if the destroyed agent is also an asteroid (not a rubble)
 			if asteroidType == physics.AsteroidAgent {
-				g.AddAsteroid()
+				g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 			}
 		}
 	}
@@ -61,7 +62,7 @@ func (g *Game) Update() error {
 	}
 	// periodically add new asteroids
 	if int(g.gameDuration.Seconds()/autoGenerateAsteroidsRatio) > len(g.asteroids) {
-		g.AddAsteroid()
+		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
 	return nil
 }

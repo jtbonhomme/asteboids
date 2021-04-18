@@ -23,6 +23,7 @@ const (
 type Starship struct {
 	physics.PhysicBody
 	lastBulletTime time.Time
+	bulletImage    *ebiten.Image
 }
 
 // NewStarship creates a new Starship (PhysicalBody agent)
@@ -32,6 +33,8 @@ func NewStarship(
 	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
+	starshipImage *ebiten.Image,
+	bulletImage *ebiten.Image,
 	debug bool) *Starship {
 	s := Starship{
 		lastBulletTime: time.Now(),
@@ -58,10 +61,9 @@ func NewStarship(
 	s.Y = y
 	s.Log = log
 
-	err := s.LoadImage("./resources/images/ship.png")
-	if err != nil {
-		log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	s.Image = starshipImage
+	s.bulletImage = bulletImage
+
 	s.Debug = debug
 	return &s
 }
@@ -99,7 +101,14 @@ func (s *Starship) Shot() {
 		return
 	}
 	s.lastBulletTime = time.Now()
-	bullet := NewBullet(s.Log, s.X, s.Y, s.Orientation, s.ScreenWidth, s.ScreenHeight, s.Unregister)
+
+	bullet := NewBullet(s.Log,
+		s.X, s.Y,
+		s.Orientation,
+		s.ScreenWidth,
+		s.ScreenHeight,
+		s.Unregister,
+		s.bulletImage)
 	s.Register(bullet)
 }
 

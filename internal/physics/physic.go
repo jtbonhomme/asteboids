@@ -56,8 +56,6 @@ type Physic interface {
 	Init()
 	// ID displays physic body unique ID.
 	ID() string
-	// LoadImage loads a picture in an ebiten image.
-	LoadImage(string) error
 	// String displays physic body information as a string.
 	String() string
 	// Intersect returns true if the physical body collide another one.

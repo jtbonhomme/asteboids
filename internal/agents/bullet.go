@@ -28,7 +28,8 @@ func NewBullet(log *logrus.Logger,
 	x, y float64,
 	orientation float64,
 	screenWidth, screenHeight float64,
-	cb physics.AgentUnregister) *Bullet {
+	cb physics.AgentUnregister,
+	bulletImage *ebiten.Image) *Bullet {
 	b := Bullet{
 		ttl: bulletTTL,
 	}
@@ -50,11 +51,7 @@ func NewBullet(log *logrus.Logger,
 	b.ScreenHeight = screenHeight
 	b.X = x
 	b.Y = y
-
-	err := b.LoadImage("./resources/images/bullet.png")
-	if err != nil {
-		log.Errorf("error when loading image from file: %s", err.Error())
-	}
+	b.Image = bulletImage
 	return &b
 }
 

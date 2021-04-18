@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	defaultScreenWidth         = 1080
-	defaultScreenHeight        = 720
-	scoreTimeUnit              = 5
-	autoGenerateAsteroidsRatio = 10
+	defaultScreenWidth         float64 = 1080
+	defaultScreenHeight        float64 = 720
+	scoreTimeUnit              float64 = 5
+	autoGenerateAsteroidsRatio float64 = 10
+	preComputedRandoms         int     = 1000
 )
 
 type Game struct {
@@ -36,11 +37,14 @@ type Game struct {
 	starships       map[string]physics.Physic
 	asteroids       map[string]physics.Physic
 	bullets         map[string]physics.Physic
+	randomsWidth    []float64
+	randomsHeight   []float64
+	randomIndex     int
 }
 
 func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 	log.Infof("New Game")
-	return &Game{
+	g := &Game{
 		log:             log,
 		gameOver:        false,
 		gameWon:         false,
@@ -57,7 +61,24 @@ func New(log *logrus.Logger, nAsteroids int, debug bool) *Game {
 		starships:       make(map[string]physics.Physic),
 		asteroids:       make(map[string]physics.Physic),
 		bullets:         make(map[string]physics.Physic),
+		randomsWidth:    make([]float64, preComputedRandoms),
+		randomsHeight:   make([]float64, preComputedRandoms),
+		randomIndex:     0,
 	}
+	for i := 0; i < preComputedRandoms; i++ {
+		nWidth, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenWidth)))
+		if err != nil {
+			g.log.Fatal(err)
+		}
+		g.randomsWidth[i] = float64(nWidth.Int64())
+
+		nHeight, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenHeight/4)))
+		if err != nil {
+			g.log.Fatal(err)
+		}
+		g.randomsHeight[i] = float64(nHeight.Int64())
+	}
+	return g
 }
 
 // StartGame initializes a new game.
@@ -80,21 +101,17 @@ func (g *Game) StartGame() {
 
 // AddAsteroid insert a new asteroid in the game.
 func (g *Game) AddAsteroid() {
-	nWidth, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenWidth/2)))
-	if err != nil {
-		g.log.Fatal(err)
-	}
-	nHeight, err := rand.Int(rand.Reader, big.NewInt(int64(g.ScreenHeight/2)))
-	if err != nil {
-		g.log.Fatal(err)
-	}
 	a := agents.NewAsteroid(g.log,
-		float64(nWidth.Int64()),
-		float64(nHeight.Int64()),
+		g.randomsWidth[g.randomIndex],
+		g.randomsHeight[g.randomIndex],
 		g.ScreenWidth, g.ScreenHeight,
 		g.Register, g.Unregister,
 		g.debug)
 	g.Register(a)
+	g.randomIndex++
+	if g.randomIndex > preComputedRandoms {
+		g.randomIndex = 0
+	}
 }
 
 // RestartGame cleans current game and a start a new game.

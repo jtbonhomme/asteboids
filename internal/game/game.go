@@ -209,11 +209,7 @@ func (g *Game) Update() error {
 		g.gameOver = true
 		g.gameWon = false
 	}
-	// or when all asteroids are destroyed
-	if len(g.asteroids) == 0 {
-		g.gameOver = true
-		g.gameWon = true
-	}
+
 	// update time until game ends
 	if !g.gameOver {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)

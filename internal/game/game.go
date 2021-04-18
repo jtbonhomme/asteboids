@@ -17,9 +17,10 @@ import (
 )
 
 const (
-	defaultScreenWidth  = 1080
-	defaultScreenHeight = 720
-	scoreTimeUnit       = 5
+	defaultScreenWidth         = 1080
+	defaultScreenHeight        = 720
+	scoreTimeUnit              = 5
+	autoGenerateAsteroidsRatio = 10
 )
 
 type Game struct {
@@ -202,20 +203,25 @@ func (g *Game) Update() error {
 			}
 		}
 	}
+
+	// game ends when there is no starship left
 	if len(g.starships) == 0 {
 		g.gameOver = true
 		g.gameWon = false
 	}
-
+	// or when all asteroids are destroyed
 	if len(g.asteroids) == 0 {
 		g.gameOver = true
 		g.gameWon = true
 	}
-
+	// update time until game ends
 	if !g.gameOver {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)
 	}
-
+	// periodically add new asteroids
+	if int(g.gameDuration.Seconds()/autoGenerateAsteroidsRatio) > len(g.asteroids) {
+		g.AddAsteroid()
+	}
 	return nil
 }
 

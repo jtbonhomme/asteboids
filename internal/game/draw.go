@@ -37,7 +37,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAgents(screen)
 
 	if g.debug {
-		msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\n", ebiten.CurrentTPS(), ebiten.CurrentFPS())
+		nAgents := len(g.asteroids) + len(g.starships) + len(g.bullets)
+		msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nAgents: %d", ebiten.CurrentTPS(), ebiten.CurrentFPS(), nAgents)
 		ebitenutil.DebugPrint(screen, msg)
 	}
 

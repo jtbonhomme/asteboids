@@ -1,3 +1,10 @@
+## [0.1.1](https://github.com/jtbonhomme/asteboids/compare/0.1.0...0.1.1) (2021-04-19)
+
+
+### Bug Fixes
+
+* add nb of agents on screen ([c68e48f](https://github.com/jtbonhomme/asteboids/commit/c68e48f04b5cb5e3e67e3207801230107718898e))
+
 # [0.1.0](https://github.com/jtbonhomme/asteboids/compare/v0.0.1...0.1.0) (2021-04-18)
 
 

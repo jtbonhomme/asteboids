@@ -20,7 +20,6 @@ type PhysicBody struct {
 	id          uuid.UUID
 	Log         *logrus.Logger
 	Orientation float64 // theta (radian)
-	Size        float64
 
 	PhysicWidth  float64
 	PhysicHeight float64

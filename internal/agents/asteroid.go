@@ -17,7 +17,7 @@ import (
 
 const (
 	rubbleSplit           int     = 3
-	asteroidVelocity      float64 = 2.0
+	asteroidVelocity      float64 = 1.0
 	asteroidRotationSpeed float64 = 0.05
 )
 
@@ -51,7 +51,6 @@ func NewAsteroid(
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
 	}
-	a.Size = 3
 	a.PhysicWidth = 100
 	a.PhysicHeight = 100
 	a.ScreenWidth = screenWidth

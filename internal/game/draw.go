@@ -21,6 +21,9 @@ func (g *Game) DrawAgents(screen *ebiten.Image) {
 	for _, b := range g.bullets {
 		b.Draw(screen)
 	}
+	for _, b := range g.boids {
+		b.Draw(screen)
+	}
 }
 
 func (g *Game) Score() int {
@@ -37,7 +40,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAgents(screen)
 
 	if g.debug {
-		nAgents := len(g.asteroids) + len(g.starships) + len(g.bullets)
+		nAgents := len(g.asteroids) + len(g.starships) + len(g.bullets) + len(g.boids)
 		msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nAgents: %d", ebiten.CurrentTPS(), ebiten.CurrentFPS(), nAgents)
 		ebitenutil.DebugPrint(screen, msg)
 	}

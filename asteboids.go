@@ -10,11 +10,12 @@ import (
 
 const (
 	nAsteroids int = 4
+	nBoids     int = 40
 )
 
 func Run(log *logrus.Logger, optim, debug bool) error {
 	os.Setenv("EBITEN_SCREENSHOT_KEY", "s")
-	g := game.New(log, nAsteroids, debug)
+	g := game.New(log, nAsteroids, nBoids, debug)
 	log.Infof("Game: %s", g)
 	ebiten.SetWindowSize(int(g.ScreenWidth), int(g.ScreenHeight))
 	ebiten.SetWindowTitle("Asteboids")

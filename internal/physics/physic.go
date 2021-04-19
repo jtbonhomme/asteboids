@@ -21,6 +21,7 @@ const (
 	AsteroidAgent string = "asteroid"
 	RubbleAgent   string = "rubble"
 	BulletAgent   string = "bullet"
+	BoidAgent     string = "boid"
 )
 
 // Size represents coordonnates (X, Y) of a physical body.

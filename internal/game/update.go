@@ -9,13 +9,16 @@ import (
 
 // UpdateAgents loops over all game agents to update them
 func (g *Game) UpdateAgents() {
-	for _, s := range g.starships {
-		s.Update()
+	for _, b := range g.bullets {
+		b.Update()
 	}
 	for _, a := range g.asteroids {
 		a.Update()
 	}
-	for _, b := range g.bullets {
+	for _, s := range g.starships {
+		s.Update()
+	}
+	for _, b := range g.boids {
 		b.Update()
 	}
 }
@@ -23,7 +26,6 @@ func (g *Game) UpdateAgents() {
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
-	// Write your game's logical update.
 	// Update the agents
 	g.UpdateAgents()
 

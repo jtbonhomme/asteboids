@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	rubbleVelocity      float64 = 3.5
+	rubbleVelocity      float64 = 2.0
 	rubbleRotationSpeed float64 = 0.07
 )
 
@@ -45,7 +45,6 @@ func NewRubble(log *logrus.Logger,
 		X: rubbleVelocity * math.Cos(r.Orientation),
 		Y: rubbleVelocity * math.Sin(r.Orientation),
 	}
-	r.Size = 3
 	r.PhysicWidth = 50
 	r.PhysicHeight = 50
 	r.ScreenWidth = screenWidth

@@ -31,6 +31,7 @@ type PhysicBody struct {
 
 	Register   AgentRegister
 	Unregister AgentUnregister
+	Vision     AgentVision
 	Image      *ebiten.Image
 
 	Debug bool

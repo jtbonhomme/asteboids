@@ -31,6 +31,7 @@ func NewBoid(
 	x, y,
 	screenWidth, screenHeight float64,
 	boidImage *ebiten.Image,
+	vision physics.AgentVision,
 	debug bool) *Boid {
 	b := Boid{}
 	b.AgentType = physics.BoidAgent
@@ -51,14 +52,27 @@ func NewBoid(
 	b.Y = y
 
 	b.Image = boidImage
+	b.Vision = vision
 	b.Debug = debug
 	return &b
+}
+
+func (b *Boid) Avoid(agents []physics.Physic, agentType string) float64 {
+	newOrientation := b.Orientation + math.Pi/16
+
+	return newOrientation
 }
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Boid) Update() {
+	nearestAgent := b.Vision(b.X, b.Y, 400.0)
+	b.Orientation = b.Avoid(nearestAgent, physics.AsteroidAgent)
+
+	b.Velocity.X = boidVelocity * math.Cos(b.Orientation)
+	b.Velocity.Y = boidVelocity * math.Sin(b.Orientation)
+
 	// update position
 	b.X += b.Velocity.X
 	b.Y += b.Velocity.Y

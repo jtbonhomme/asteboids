@@ -188,6 +188,7 @@ func (g *Game) AddBoid() {
 		float64(rand.Intn(int(g.ScreenHeight/4))),
 		g.ScreenWidth, g.ScreenHeight,
 		g.boidImage,
+		g.Vision,
 		g.debug)
 	g.Register(b)
 }
@@ -203,8 +204,39 @@ func (g *Game) RestartGame() {
 	for k := range g.bullets {
 		delete(g.bullets, k)
 	}
+	for k := range g.boids {
+		delete(g.boids, k)
+	}
 
 	g.StartGame()
+}
+
+// Vision returns all agents located in a radius from (x,y)
+func (g *Game) Vision(x, y, radius float64) []physics.Physic {
+	nearestAgents := []physics.Physic{}
+
+	for _, v := range g.starships {
+		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+			nearestAgents = append(nearestAgents, v)
+		}
+	}
+	for _, v := range g.asteroids {
+		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+			nearestAgents = append(nearestAgents, v)
+		}
+	}
+	for _, v := range g.bullets {
+		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+			nearestAgents = append(nearestAgents, v)
+		}
+	}
+	for _, v := range g.boids {
+		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+			nearestAgents = append(nearestAgents, v)
+		}
+	}
+
+	return nearestAgents
 }
 
 // Register adds a new agent (player or ai) to the game.

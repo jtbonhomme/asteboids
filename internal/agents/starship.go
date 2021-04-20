@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,14 +43,14 @@ func NewStarship(
 	s.AgentType = physics.StarshipAgent
 	s.Register = cbr
 	s.Unregister = cbu
-	s.Init()
+	s.Init(x, y)
 
 	s.Orientation = math.Pi / 2
-	s.Velocity = physics.Vector{
+	s.Velocity = vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
-	s.Acceleration = physics.Vector{
+	s.Acceleration = vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
@@ -57,8 +58,6 @@ func NewStarship(
 	s.PhysicHeight = 50
 	s.ScreenWidth = screenWidth
 	s.ScreenHeight = screenHeight
-	s.X = x
-	s.Y = y
 	s.Log = log
 
 	s.Image = starshipImage
@@ -92,6 +91,9 @@ func (s *Starship) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		s.Shot()
 	}
+
+	s.UpdateVelocity()
+
 }
 
 // Shot adds a new bullet to the game.
@@ -103,7 +105,7 @@ func (s *Starship) Shot() {
 	s.lastBulletTime = time.Now()
 
 	bullet := NewBullet(s.Log,
-		s.X, s.Y,
+		s.Position().X, s.Position().Y,
 		s.Orientation,
 		s.ScreenWidth,
 		s.ScreenHeight,
@@ -121,7 +123,7 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 		msg := s.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.X)-textWidth/2, int(s.Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.Position().X)-textWidth/2, int(s.Position().Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 

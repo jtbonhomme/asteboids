@@ -11,11 +11,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
 type PhysicBody struct {
-	Position
+	position    vector.Vector2D
 	AgentType   string
 	id          uuid.UUID
 	Log         *logrus.Logger
@@ -26,8 +27,8 @@ type PhysicBody struct {
 	ScreenWidth  float64
 	ScreenHeight float64
 
-	Velocity     Vector
-	Acceleration Vector
+	Velocity     vector.Vector2D
+	Acceleration vector.Vector2D
 
 	Register   AgentRegister
 	Unregister AgentUnregister
@@ -38,8 +39,10 @@ type PhysicBody struct {
 }
 
 // Init initializes the physic body
-func (pb *PhysicBody) Init() {
+func (pb *PhysicBody) Init(x, y float64) {
 	pb.id = uuid.New()
+	pb.position.X = x
+	pb.position.Y = y
 }
 
 // Draw draws the agent.
@@ -50,7 +53,7 @@ func (pb *PhysicBody) Draw(screen *ebiten.Image) {
 
 	op.GeoM.Translate(-pb.PhysicWidth/2, -pb.PhysicHeight/2)
 	op.GeoM.Rotate(pb.Orientation)
-	op.GeoM.Translate(pb.X, pb.Y)
+	op.GeoM.Translate(pb.position.X, pb.position.Y)
 	if pb.Debug {
 		pb.DrawBodyBoundaryBox(screen)
 	}
@@ -71,7 +74,7 @@ func (pb *PhysicBody) UpdateAcceleration(i float64) {
 	pb.Acceleration.Y = accelerationFactor * i * math.Sin(pb.Orientation)
 }
 
-func (pb *PhysicBody) updateVelocity() {
+func (pb *PhysicBody) UpdateVelocity() {
 	pb.Velocity.X += pb.Acceleration.X - frictionFactor*pb.Velocity.X
 	pb.Velocity.Y += pb.Acceleration.Y - frictionFactor*pb.Velocity.Y
 
@@ -89,21 +92,19 @@ func (pb *PhysicBody) updateVelocity() {
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (pb *PhysicBody) Update() {
-	pb.updateVelocity()
-
 	// update position
-	pb.X += velocityFactor * pb.Velocity.X
-	pb.Y += velocityFactor * pb.Velocity.Y
+	pb.position.X += velocityFactor * pb.Velocity.X
+	pb.position.Y += velocityFactor * pb.Velocity.Y
 
-	if pb.X > pb.ScreenWidth {
-		pb.X = 0
-	} else if pb.X < 0 {
-		pb.X = pb.ScreenWidth
+	if pb.position.X > pb.ScreenWidth {
+		pb.position.X = 0
+	} else if pb.position.X < 0 {
+		pb.position.X = pb.ScreenWidth
 	}
-	if pb.Y > pb.ScreenHeight {
-		pb.Y = 0
-	} else if pb.Y < 0 {
-		pb.Y = pb.ScreenHeight
+	if pb.position.Y > pb.ScreenHeight {
+		pb.position.Y = 0
+	} else if pb.position.Y < 0 {
+		pb.position.Y = pb.ScreenHeight
 	}
 }
 
@@ -116,8 +117,8 @@ func (pb *PhysicBody) ID() string {
 func (pb *PhysicBody) String() string {
 	return fmt.Sprintf("%s: [%d, %d] [%d, %d]\n%0.2f rad (%0.0f °) {%0.2f %0.2f}",
 		pb.Type(),
-		int(pb.X),
-		int(pb.Y),
+		int(pb.position.X),
+		int(pb.position.Y),
 		int(pb.PhysicWidth),
 		int(pb.PhysicHeight),
 		pb.Orientation,
@@ -130,10 +131,10 @@ func (pb *PhysicBody) String() string {
 // Collision is computed based on Axis-Aligned Bounding Boxes.
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 func (pb *PhysicBody) Intersect(p Physic) bool {
-	ax, ay := pb.Dimension().X, pb.Dimension().Y
+	ax, ay := pb.position.X, pb.position.Y
 	aw, ah := pb.Dimension().W*collisionPrecision, pb.Dimension().H*collisionPrecision
 
-	bx, by := p.Dimension().X, p.Dimension().Y
+	bx, by := p.Position().X, p.Position().Y
 	bw, bh := p.Dimension().W*collisionPrecision, p.Dimension().H*collisionPrecision
 
 	return (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
@@ -149,55 +150,54 @@ func (pb *PhysicBody) IntersectMultiple(physics map[string]Physic) (string, bool
 	return "", false
 }
 
-// Dimensions returns physical body dimensions.
-func (pb *PhysicBody) Dimension() Block {
-	return Block{
-		Position{
-			X: pb.X,
-			Y: pb.Y,
-		},
-		Size{
-			H: pb.PhysicHeight,
-			W: pb.PhysicWidth,
-		},
+// Dimension returns physical body dimension.
+func (pb *PhysicBody) Dimension() Size {
+	return Size{
+		H: pb.PhysicHeight,
+		W: pb.PhysicWidth,
 	}
+}
+
+// Position returns physical body position.
+func (pb *PhysicBody) Position() vector.Vector2D {
+	return pb.position
 }
 
 func (pb *PhysicBody) DrawBodyBoundaryBox(screen *ebiten.Image) {
 	// Top boundary
 	ebitenutil.DrawLine(
 		screen,
-		pb.X-pb.PhysicWidth/2,
-		pb.Y-pb.PhysicHeight/2,
-		pb.X+pb.PhysicWidth/2,
-		pb.Y-pb.PhysicHeight/2,
+		pb.position.X-pb.PhysicWidth/2,
+		pb.position.Y-pb.PhysicHeight/2,
+		pb.position.X+pb.PhysicWidth/2,
+		pb.position.Y-pb.PhysicHeight/2,
 		color.Gray16{0x6666},
 	)
 	// Right boundary
 	ebitenutil.DrawLine(
 		screen,
-		pb.X+pb.PhysicWidth/2,
-		pb.Y-pb.PhysicHeight/2,
-		pb.X+pb.PhysicWidth/2,
-		pb.Y+pb.PhysicHeight/2,
+		pb.position.X+pb.PhysicWidth/2,
+		pb.position.Y-pb.PhysicHeight/2,
+		pb.position.X+pb.PhysicWidth/2,
+		pb.position.Y+pb.PhysicHeight/2,
 		color.Gray16{0x6666},
 	)
 	// Bottom boundary
 	ebitenutil.DrawLine(
 		screen,
-		pb.X-pb.PhysicWidth/2,
-		pb.Y+pb.PhysicHeight/2,
-		pb.X+pb.PhysicWidth/2,
-		pb.Y+pb.PhysicHeight/2,
+		pb.position.X-pb.PhysicWidth/2,
+		pb.position.Y+pb.PhysicHeight/2,
+		pb.position.X+pb.PhysicWidth/2,
+		pb.position.Y+pb.PhysicHeight/2,
 		color.Gray16{0x6666},
 	)
 	// Left boundary
 	ebitenutil.DrawLine(
 		screen,
-		pb.X-pb.PhysicWidth/2,
-		pb.Y-pb.PhysicHeight/2,
-		pb.X-pb.PhysicWidth/2,
-		pb.Y+pb.PhysicHeight/2,
+		pb.position.X-pb.PhysicWidth/2,
+		pb.position.Y-pb.PhysicHeight/2,
+		pb.position.X-pb.PhysicWidth/2,
+		pb.position.Y+pb.PhysicHeight/2,
 		color.Gray16{0x6666},
 	)
 }

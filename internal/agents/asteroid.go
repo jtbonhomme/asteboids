@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,11 +44,11 @@ func NewAsteroid(
 	a.Register = cbr
 	a.Unregister = cbu
 
-	a.Init()
+	a.Init(x, y)
 	a.Log = log
 
 	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
-	a.Velocity = physics.Vector{
+	a.Velocity = vector.Vector2D{
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
 	}
@@ -55,8 +56,6 @@ func NewAsteroid(
 	a.PhysicHeight = 100
 	a.ScreenWidth = screenWidth
 	a.ScreenHeight = screenHeight
-	a.X = x
-	a.Y = y
 
 	a.Image = asteroidImage
 	a.rubbleImages = rubbleImages
@@ -68,21 +67,8 @@ func NewAsteroid(
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (a *Asteroid) Update() {
+	defer a.PhysicBody.Update()
 	a.Rotate(asteroidRotationSpeed)
-	// update position
-	a.X += a.Velocity.X
-	a.Y += a.Velocity.Y
-
-	if a.X > a.ScreenWidth {
-		a.X = 0
-	} else if a.X < 0 {
-		a.X = a.ScreenWidth
-	}
-	if a.Y > a.ScreenHeight {
-		a.Y = 0
-	} else if a.Y < 0 {
-		a.Y = a.ScreenHeight
-	}
 }
 
 // Draw draws the game screen.
@@ -94,7 +80,7 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 		msg := a.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(a.X)-textWidth/2, int(a.Y+a.PhysicHeight/2+5), color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(a.Position().X)-textWidth/2, int(a.Position().Y+a.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 
@@ -106,8 +92,8 @@ func (a *Asteroid) Explode() {
 
 	for i := 0; i < rubbleSplit; i++ {
 		rubble := NewRubble(a.Log,
-			a.X,
-			a.Y,
+			a.Position().X,
+			a.Position().Y,
 			a.ScreenWidth, a.ScreenHeight,
 			a.Unregister,
 			a.rubbleImages[rand.Intn(5)],

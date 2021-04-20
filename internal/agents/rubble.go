@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,11 +38,11 @@ func NewRubble(log *logrus.Logger,
 	r.AgentType = physics.RubbleAgent
 	r.Unregister = cbu
 
-	r.Init()
+	r.Init(x, y)
 	r.Log = log
 
 	r.Orientation = math.Pi / 16 * float64(rand.Intn(32))
-	r.Velocity = physics.Vector{
+	r.Velocity = vector.Vector2D{
 		X: rubbleVelocity * math.Cos(r.Orientation),
 		Y: rubbleVelocity * math.Sin(r.Orientation),
 	}
@@ -49,8 +50,6 @@ func NewRubble(log *logrus.Logger,
 	r.PhysicHeight = 50
 	r.ScreenWidth = screenWidth
 	r.ScreenHeight = screenHeight
-	r.X = x
-	r.Y = y
 
 	/*filename := fmt.Sprintf("./resources/images/rubble%d.png", rand.Intn(5))*/
 	r.Image = rubbleImage
@@ -62,21 +61,8 @@ func NewRubble(log *logrus.Logger,
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (r *Rubble) Update() {
+	defer r.PhysicBody.Update()
 	r.Rotate(rubbleRotationSpeed)
-	// update position
-	r.X += r.Velocity.X
-	r.Y += r.Velocity.Y
-
-	if r.X > r.ScreenWidth {
-		r.X = 0
-	} else if r.X < 0 {
-		r.X = r.ScreenWidth
-	}
-	if r.Y > r.ScreenHeight {
-		r.Y = 0
-	} else if r.Y < 0 {
-		r.Y = r.ScreenHeight
-	}
 }
 
 // Draw draws the game screen.
@@ -88,7 +74,7 @@ func (r *Rubble) Draw(screen *ebiten.Image) {
 		msg := r.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(r.X)-textWidth/2, int(r.Y+r.PhysicHeight/2+5), color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(r.Position().X)-textWidth/2, int(r.Position().Y+r.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }
 

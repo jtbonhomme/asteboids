@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,7 +21,7 @@ const (
 // It represents a bullet shot by a starship agent.
 type Bullet struct {
 	physics.PhysicBody
-	ttl int
+	lifespan int
 }
 
 // NewBullet creates a new Bullet (PhysicalBody agent)
@@ -31,16 +32,16 @@ func NewBullet(log *logrus.Logger,
 	cb physics.AgentUnregister,
 	bulletImage *ebiten.Image) *Bullet {
 	b := Bullet{
-		ttl: bulletTTL,
+		lifespan: bulletTTL,
 	}
 	b.AgentType = physics.BulletAgent
 	b.Unregister = cb
 
-	b.Init()
+	b.Init(x, y)
 	b.Log = log
 
 	b.Orientation = orientation
-	b.Velocity = physics.Vector{
+	b.Velocity = vector.Vector2D{
 		X: bulletVelocity * math.Cos(b.Orientation),
 		Y: bulletVelocity * math.Sin(b.Orientation),
 	}
@@ -48,8 +49,6 @@ func NewBullet(log *logrus.Logger,
 	b.PhysicHeight = 16
 	b.ScreenWidth = screenWidth
 	b.ScreenHeight = screenHeight
-	b.X = x
-	b.Y = y
 	b.Image = bulletImage
 	return &b
 }
@@ -58,23 +57,10 @@ func NewBullet(log *logrus.Logger,
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Bullet) Update() {
-	b.ttl--
-	if b.ttl == 0 {
+	defer b.PhysicBody.Update()
+	b.lifespan--
+	if b.lifespan == 0 {
 		b.SelfDestroy()
-	}
-	// update position
-	b.X += b.Velocity.X
-	b.Y += b.Velocity.Y
-
-	if b.X > b.ScreenWidth {
-		b.X = 0
-	} else if b.X < 0 {
-		b.X = b.ScreenWidth
-	}
-	if b.Y > b.ScreenHeight {
-		b.Y = 0
-	} else if b.Y < 0 {
-		b.Y = b.ScreenHeight
 	}
 }
 

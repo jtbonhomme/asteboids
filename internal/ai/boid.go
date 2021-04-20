@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -36,11 +37,11 @@ func NewBoid(
 	b := Boid{}
 	b.AgentType = physics.BoidAgent
 
-	b.Init()
+	b.Init(x, y)
 	b.Log = log
 
 	b.Orientation = math.Pi / 32 * float64(rand.Intn(64))
-	b.Velocity = physics.Vector{
+	b.Velocity = vector.Vector2D{
 		X: boidVelocity * math.Cos(b.Orientation),
 		Y: boidVelocity * math.Sin(b.Orientation),
 	}
@@ -48,8 +49,6 @@ func NewBoid(
 	b.PhysicHeight = 10
 	b.ScreenWidth = screenWidth
 	b.ScreenHeight = screenHeight
-	b.X = x
-	b.Y = y
 
 	b.Image = boidImage
 	b.Vision = vision
@@ -67,26 +66,13 @@ func (b *Boid) Avoid(agents []physics.Physic, agentType string) float64 {
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Boid) Update() {
-	nearestAgent := b.Vision(b.X, b.Y, 400.0)
+	defer b.PhysicBody.Update()
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
 	b.Orientation = b.Avoid(nearestAgent, physics.AsteroidAgent)
 
 	b.Velocity.X = boidVelocity * math.Cos(b.Orientation)
 	b.Velocity.Y = boidVelocity * math.Sin(b.Orientation)
 
-	// update position
-	b.X += b.Velocity.X
-	b.Y += b.Velocity.Y
-
-	if b.X > b.ScreenWidth {
-		b.X = 0
-	} else if b.X < 0 {
-		b.X = b.ScreenWidth
-	}
-	if b.Y > b.ScreenHeight {
-		b.Y = 0
-	} else if b.Y < 0 {
-		b.Y = b.ScreenHeight
-	}
 }
 
 // Draw draws the game screen.
@@ -98,6 +84,6 @@ func (b *Boid) Draw(screen *ebiten.Image) {
 		msg := b.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(b.X)-textWidth/2, int(b.Y+b.PhysicHeight/2+5), color.Gray16{0x999f})
+		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(b.Position().X)-textWidth/2, int(b.Position().Y+b.PhysicHeight/2+5), color.Gray16{0x999f})
 	}
 }

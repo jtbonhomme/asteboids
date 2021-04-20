@@ -216,22 +216,22 @@ func (g *Game) Vision(x, y, radius float64) []physics.Physic {
 	nearestAgents := []physics.Physic{}
 
 	for _, v := range g.starships {
-		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.asteroids {
-		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.bullets {
-		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.boids {
-		if (v.Dimension().X-x)*(v.Dimension().X-x)+(v.Dimension().Y-y)*(v.Dimension().Y-y) < radius*radius {
+		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}

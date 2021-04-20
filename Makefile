@@ -24,6 +24,9 @@ pprof: ## Run the main program with profiling.
 build: ## Build the main program.
 	go build -o asteboids cmd/asteboids/main.go
 
+wasm: ## Build for WASM distribution.
+	GOOS=js GOARCH=wasm go build -o build/asteboids.wasm cmd/asteboids/main.go
+
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)
 	gopherbadger

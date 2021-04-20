@@ -22,7 +22,7 @@ const (
 // Starship is a PhysicalBody agent.
 // It represents a playable star ship.
 type Starship struct {
-	physics.PhysicBody
+	physics.Body
 	lastBulletTime time.Time
 	bulletImage    *ebiten.Image
 }
@@ -70,7 +70,7 @@ func NewStarship(
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
-	defer s.PhysicBody.Update()
+	defer s.Body.UpdatePosition()
 
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		s.Rotate(-rotationAngle)
@@ -117,7 +117,7 @@ func (s *Starship) Shot() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
-	defer s.PhysicBody.Draw(screen)
+	defer s.Body.Draw(screen)
 
 	if s.Debug {
 		msg := s.String()

@@ -24,7 +24,7 @@ const (
 // Rubble is a PhysicalBody agent
 // It represents a bullet shot by a starship agent.
 type Rubble struct {
-	physics.PhysicBody
+	physics.Body
 }
 
 // NewRubble creates a new Rubble (PhysicalBody agent)
@@ -61,14 +61,14 @@ func NewRubble(log *logrus.Logger,
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (r *Rubble) Update() {
-	defer r.PhysicBody.Update()
+	defer r.Body.UpdatePosition()
 	r.Rotate(rubbleRotationSpeed)
 }
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (r *Rubble) Draw(screen *ebiten.Image) {
-	defer r.PhysicBody.Draw(screen)
+	defer r.Body.Draw(screen)
 
 	if r.Debug {
 		msg := r.String()

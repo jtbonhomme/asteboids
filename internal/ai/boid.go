@@ -23,7 +23,7 @@ const (
 // Boid is a PhysicalBody agent.
 // It represents a single autonomous agent.
 type Boid struct {
-	physics.PhysicBody
+	physics.Body
 }
 
 // NewBoid creates a new Boid (PhysicalBody agent)
@@ -66,7 +66,7 @@ func (b *Boid) Avoid(agents []physics.Physic, agentType string) float64 {
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Boid) Update() {
-	defer b.PhysicBody.Update()
+	defer b.Body.UpdatePosition()
 	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
 	b.Orientation = b.Avoid(nearestAgent, physics.AsteroidAgent)
 
@@ -78,7 +78,7 @@ func (b *Boid) Update() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Boid) Draw(screen *ebiten.Image) {
-	defer b.PhysicBody.Draw(screen)
+	defer b.Body.Draw(screen)
 
 	if b.Debug {
 		msg := b.String()

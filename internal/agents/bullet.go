@@ -20,7 +20,7 @@ const (
 // Bullet is a PhysicalBody agent
 // It represents a bullet shot by a starship agent.
 type Bullet struct {
-	physics.PhysicBody
+	physics.Body
 	lifespan int
 }
 
@@ -57,7 +57,7 @@ func NewBullet(log *logrus.Logger,
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (b *Bullet) Update() {
-	defer b.PhysicBody.Update()
+	defer b.Body.UpdatePosition()
 	b.lifespan--
 	if b.lifespan == 0 {
 		b.SelfDestroy()
@@ -67,7 +67,7 @@ func (b *Bullet) Update() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Bullet) Draw(screen *ebiten.Image) {
-	b.PhysicBody.Draw(screen)
+	b.Body.Draw(screen)
 }
 
 // SelfDestroy removes the agent from the game

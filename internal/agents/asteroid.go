@@ -25,7 +25,7 @@ const (
 // Asteroid is a PhysicalBody agent
 // It represents a bullet shot by a starship agent.
 type Asteroid struct {
-	physics.PhysicBody
+	physics.Body
 	rubbleImages []*ebiten.Image
 }
 
@@ -67,14 +67,14 @@ func NewAsteroid(
 // Update is called every tick (1/60 [s] by default).
 // Update maintains a TTL counter to limit live of bullets.
 func (a *Asteroid) Update() {
-	defer a.PhysicBody.Update()
+	defer a.Body.UpdatePosition()
 	a.Rotate(asteroidRotationSpeed)
 }
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (a *Asteroid) Draw(screen *ebiten.Image) {
-	defer a.PhysicBody.Draw(screen)
+	defer a.Body.Draw(screen)
 
 	if a.Debug {
 		msg := a.String()

@@ -12,7 +12,7 @@ import (
 const (
 	accelerationFactor float64 = 0.3
 	velocityFactor     float64 = 1.8
-	maxVelocity        float64 = 5.5
+	defaultMaxVelocity float64 = 3.5
 	frictionFactor     float64 = 0.03
 	collisionPrecision float64 = 1.0
 )

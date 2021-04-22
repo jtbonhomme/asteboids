@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	bulletThrottle time.Duration = 200 * time.Millisecond
-	rotationAngle  float64       = math.Pi / 36 // rotation of 5°
+	bulletThrottle      time.Duration = 200 * time.Millisecond
+	rotationAngle       float64       = math.Pi / 36 // rotation of 5°
+	starshipMaxVelocity float64       = 5.5
 )
 
 // Starship is a PhysicalBody agent.
@@ -47,7 +48,7 @@ func NewStarship(
 		X: 0,
 		Y: 0,
 	})
-
+	s.LimitVelocity(starshipMaxVelocity)
 	s.Orientation = math.Pi / 2
 	s.Move(vector.Vector2D{
 		X: x,

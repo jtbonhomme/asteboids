@@ -73,6 +73,11 @@ func (pb *Body) Velocity() vector.Vector2D {
 	return pb.velocity
 }
 
+// LimitVelocity limits the physical body maximum velocity.
+func (pb *Body) LimitVelocity(maxVelocity float64) {
+	pb.maxVelocity = maxVelocity
+}
+
 // Move set physical body positiion.
 func (pb *Body) Move(position vector.Vector2D) {
 	pb.position = position

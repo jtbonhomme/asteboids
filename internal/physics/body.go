@@ -20,6 +20,7 @@ type Body struct {
 	ScreenHeight float64
 
 	velocity     vector.Vector2D
+	maxVelocity  float64
 	acceleration vector.Vector2D
 
 	Register   AgentRegister
@@ -34,6 +35,7 @@ type Body struct {
 func (pb *Body) Init(velocity vector.Vector2D) {
 	pb.id = uuid.New()
 	pb.velocity = velocity
+	pb.maxVelocity = defaultMaxVelocity
 }
 
 // Draw draws the agent.

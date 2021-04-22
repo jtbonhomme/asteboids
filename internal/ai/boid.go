@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	boidVelocity float64 = 5.0
+	boidVelocity    float64 = 4.0
+	boidMaxVelocity float64 = 5.0
 )
 
 // Boid is a PhysicalBody agent.
@@ -43,6 +44,7 @@ func NewBoid(
 		X: boidVelocity * math.Cos(b.Orientation),
 		Y: boidVelocity * math.Sin(b.Orientation),
 	})
+	b.LimitVelocity(boidMaxVelocity)
 	b.Log = log
 
 	b.Move(vector.Vector2D{

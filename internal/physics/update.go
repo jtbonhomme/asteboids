@@ -35,9 +35,9 @@ func (pb *Body) UpdateVelocity() {
 	pb.velocity.Y += pb.acceleration.Y - frictionFactor*pb.velocity.Y
 
 	velocityValue := pb.velocity.X*pb.velocity.X + pb.velocity.Y*pb.velocity.Y
-	if velocityValue > maxVelocity*maxVelocity {
-		pb.velocity.X = maxVelocity * math.Cos(pb.Orientation)
-		pb.velocity.Y = maxVelocity * math.Sin(pb.Orientation)
+	if velocityValue > pb.maxVelocity*pb.maxVelocity {
+		pb.velocity.X = pb.maxVelocity * math.Cos(pb.Orientation)
+		pb.velocity.Y = pb.maxVelocity * math.Sin(pb.Orientation)
 	}
 	if velocityValue < 0 {
 		pb.velocity.X = 0

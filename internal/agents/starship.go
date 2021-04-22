@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	bulletThrottle      time.Duration = 200 * time.Millisecond
-	rotationAngle       float64       = math.Pi / 36 // rotation of 5°
-	starshipMaxVelocity float64       = 5.5
+	bulletThrottle       time.Duration = 200 * time.Millisecond
+	rotationAngle        float64       = math.Pi / 36 // rotation of 5°
+	starshipMaxVelocity  float64       = 4.0
+	starshipAcceleration float64       = 0.3
 )
 
 // Starship is a PhysicalBody agent.
@@ -83,9 +84,14 @@ func (s *Starship) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		s.UpdateAcceleration(1)
+		acceleration := vector.Vector2D{
+			X: math.Cos(s.Orientation),
+			Y: math.Sin(s.Orientation),
+		}
+		acceleration.Multiply(starshipAcceleration)
+		s.Accelerate(acceleration)
 	} else {
-		s.UpdateAcceleration(0)
+		s.Accelerate(vector.Vector2D{})
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
@@ -123,6 +129,7 @@ func (s *Starship) Shot() {
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.Body.Draw(screen)
 
+	// TODO write a debug function in physics/body.go
 	if s.Debug {
 		msg := s.String()
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)

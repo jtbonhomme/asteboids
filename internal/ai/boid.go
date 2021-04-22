@@ -17,8 +17,11 @@ import (
 )
 
 const (
-	boidVelocity    float64 = 4.0
-	boidMaxVelocity float64 = 5.0
+	boidAcceleration float64 = 4.0
+	boidMaxVelocity  float64 = 5.0
+	separationFactor float64 = 1.0
+	cohesionFactor   float64 = 1.0
+	alignmentFactor  float64 = 1.5
 )
 
 // Boid is a PhysicalBody agent.
@@ -41,8 +44,8 @@ func NewBoid(
 	b.Orientation = math.Pi / 32 * float64(rand.Intn(64))
 
 	b.Init(vector.Vector2D{
-		X: boidVelocity * math.Cos(b.Orientation),
-		Y: boidVelocity * math.Sin(b.Orientation),
+		X: boidMaxVelocity * math.Cos(b.Orientation),
+		Y: boidMaxVelocity * math.Sin(b.Orientation),
 	})
 	b.LimitVelocity(boidMaxVelocity)
 	b.Log = log
@@ -62,24 +65,27 @@ func NewBoid(
 	return &b
 }
 
-func (b *Boid) Avoid(agents []physics.Physic, agentType string) float64 {
-	newOrientation := b.Orientation + math.Pi/16
-
-	return newOrientation
-}
-
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
-// Update maintains a TTL counter to limit live of bullets.
 func (b *Boid) Update() {
 	defer b.Body.UpdatePosition()
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
-	b.Orientation = b.Avoid(nearestAgent, physics.AsteroidAgent)
 
-	b.Accelerate(vector.Vector2D{
-		X: boidVelocity * math.Cos(b.Orientation),
-		Y: boidVelocity * math.Sin(b.Orientation),
-	})
+	acceleration := vector.Vector2D{}
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
+
+	cohesion := b.cohesion(nearestAgent)
+	cohesion.Multiply(cohesionFactor)
+	acceleration.Add(cohesion)
+
+	separation := b.separate(nearestAgent)
+	separation.Multiply(separationFactor)
+	acceleration.Add(separation)
+
+	alignment := b.align(nearestAgent)
+	alignment.Multiply(alignmentFactor)
+	acceleration.Add(alignment)
+
+	b.Accelerate(acceleration)
 }
 
 // Draw draws the game screen.
@@ -92,5 +98,29 @@ func (b *Boid) Draw(screen *ebiten.Image) {
 		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
 		textWidth := textDim.Max.X - textDim.Min.X
 		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(b.Position().X)-textWidth/2, int(b.Position().Y+b.PhysicHeight/2+5), color.Gray16{0x999f})
+	}
+}
+
+// cohesion returns the force imposed by flocking cohesion rule.
+func (b *Boid) cohesion(flock []physics.Physic) vector.Vector2D {
+	return vector.Vector2D{
+		X: 0,
+		Y: 0,
+	}
+}
+
+// separate returns the force imposed by flocking separation rule.
+func (b *Boid) separate(flock []physics.Physic) vector.Vector2D {
+	return vector.Vector2D{
+		X: 0,
+		Y: 0,
+	}
+}
+
+// align returns the force imposed by flocking alignment rule.
+func (b *Boid) align(flock []physics.Physic) vector.Vector2D {
+	return vector.Vector2D{
+		X: 0,
+		Y: 0,
 	}
 }

@@ -18,37 +18,22 @@ func (pb *Body) Rotate(rotationAngle float64) {
 // Update is called every tick (1/60 [s] by default).
 // Update proceeds the agent state.
 func (pb *Body) Update() {
-	pb.UpdateAcceleration(1)
 	pb.UpdateVelocity()
 	pb.UpdatePosition()
 }
 
-// UpdatePosition compute new acceleration.
-func (pb *Body) UpdateAcceleration(i float64) {
-	pb.acceleration.X = accelerationFactor * i * math.Cos(pb.Orientation)
-	pb.acceleration.Y = accelerationFactor * i * math.Sin(pb.Orientation)
-}
-
-// UpdatePosition compute new velocity.
+// UpdateVelocity computes new velocity.
 func (pb *Body) UpdateVelocity() {
-	pb.velocity.X += pb.acceleration.X - frictionFactor*pb.velocity.X
-	pb.velocity.Y += pb.acceleration.Y - frictionFactor*pb.velocity.Y
+	// update velocity from acceleration
+	pb.velocity.Add(pb.acceleration)
 
-	velocityValue := pb.velocity.X*pb.velocity.X + pb.velocity.Y*pb.velocity.Y
-	if velocityValue > pb.maxVelocity*pb.maxVelocity {
-		pb.velocity.X = pb.maxVelocity * math.Cos(pb.Orientation)
-		pb.velocity.Y = pb.maxVelocity * math.Sin(pb.Orientation)
-	}
-	if velocityValue < 0 {
-		pb.velocity.X = 0
-		pb.velocity.Y = 0
-	}
+	// limit velocity to max value
+	pb.velocity.Limit(pb.maxVelocity)
 }
 
 // UpdatePosition compute new position.
 func (pb *Body) UpdatePosition() {
-	pb.position.X += velocityFactor * pb.velocity.X
-	pb.position.Y += velocityFactor * pb.velocity.Y
+	pb.position.Add(pb.velocity)
 
 	if pb.position.X > pb.ScreenWidth {
 		pb.position.X = 0

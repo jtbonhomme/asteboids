@@ -18,8 +18,8 @@ import (
 
 const (
 	rubbleSplit           int     = 3
-	asteroidVelocity      float64 = 1.0
-	asteroidRotationSpeed float64 = 0.05
+	asteroidMaxVelocity   float64 = 0.8
+	asteroidRotationSpeed float64 = 0.02
 )
 
 // Asteroid is a PhysicalBody agent
@@ -47,10 +47,11 @@ func NewAsteroid(
 	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
 
 	a.Init(vector.Vector2D{
-		X: asteroidVelocity * math.Cos(a.Orientation),
-		Y: asteroidVelocity * math.Sin(a.Orientation),
+		X: asteroidMaxVelocity * math.Cos(a.Orientation),
+		Y: asteroidMaxVelocity * math.Sin(a.Orientation),
 	})
 	a.Log = log
+	a.LimitVelocity(asteroidMaxVelocity)
 
 	a.Move(vector.Vector2D{
 		X: x,
@@ -69,9 +70,9 @@ func NewAsteroid(
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
-// Update maintains a TTL counter to limit live of bullets.
 func (a *Asteroid) Update() {
-	defer a.Body.UpdatePosition()
+	defer a.Body.Update()
+	//defer a.Body.UpdatePosition()
 	a.Rotate(asteroidRotationSpeed)
 }
 

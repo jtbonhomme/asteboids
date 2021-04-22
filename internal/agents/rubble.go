@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	rubbleVelocity      float64 = 2.0
+	rubbleMaxVelocity   float64 = 2.0
 	rubbleRotationSpeed float64 = 0.07
 )
 
@@ -41,10 +41,11 @@ func NewRubble(log *logrus.Logger,
 	r.Orientation = math.Pi / 16 * float64(rand.Intn(32))
 
 	r.Init(vector.Vector2D{
-		X: rubbleVelocity * math.Cos(r.Orientation),
-		Y: rubbleVelocity * math.Sin(r.Orientation),
+		X: rubbleMaxVelocity * math.Cos(r.Orientation),
+		Y: rubbleMaxVelocity * math.Sin(r.Orientation),
 	})
 	r.Log = log
+	r.LimitVelocity(rubbleMaxVelocity)
 
 	r.Move(vector.Vector2D{
 		X: x,
@@ -63,7 +64,6 @@ func NewRubble(log *logrus.Logger,
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
-// Update maintains a TTL counter to limit live of bullets.
 func (r *Rubble) Update() {
 	defer r.Body.UpdatePosition()
 	r.Rotate(rubbleRotationSpeed)

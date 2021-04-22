@@ -38,14 +38,18 @@ func NewRubble(log *logrus.Logger,
 	r.AgentType = physics.RubbleAgent
 	r.Unregister = cbu
 
-	r.Init(x, y)
-	r.Log = log
-
 	r.Orientation = math.Pi / 16 * float64(rand.Intn(32))
-	r.Velocity = vector.Vector2D{
+
+	r.Init(vector.Vector2D{
 		X: rubbleVelocity * math.Cos(r.Orientation),
 		Y: rubbleVelocity * math.Sin(r.Orientation),
-	}
+	})
+	r.Log = log
+
+	r.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
 	r.PhysicWidth = 50
 	r.PhysicHeight = 50
 	r.ScreenWidth = screenWidth

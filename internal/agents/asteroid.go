@@ -44,14 +44,18 @@ func NewAsteroid(
 	a.Register = cbr
 	a.Unregister = cbu
 
-	a.Init(x, y)
-	a.Log = log
-
 	a.Orientation = math.Pi / 16 * float64(rand.Intn(32))
-	a.Velocity = vector.Vector2D{
+
+	a.Init(vector.Vector2D{
 		X: asteroidVelocity * math.Cos(a.Orientation),
 		Y: asteroidVelocity * math.Sin(a.Orientation),
-	}
+	})
+	a.Log = log
+
+	a.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
 	a.PhysicWidth = 100
 	a.PhysicHeight = 100
 	a.ScreenWidth = screenWidth

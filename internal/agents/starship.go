@@ -43,17 +43,20 @@ func NewStarship(
 	s.AgentType = physics.StarshipAgent
 	s.Register = cbr
 	s.Unregister = cbu
-	s.Init(x, y)
+	s.Init(vector.Vector2D{
+		X: 0,
+		Y: 0,
+	})
 
 	s.Orientation = math.Pi / 2
-	s.Velocity = vector.Vector2D{
+	s.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
+	s.Accelerate(vector.Vector2D{
 		X: 0,
 		Y: 0,
-	}
-	s.Acceleration = vector.Vector2D{
-		X: 0,
-		Y: 0,
-	}
+	})
 	s.PhysicWidth = 50
 	s.PhysicHeight = 50
 	s.ScreenWidth = screenWidth

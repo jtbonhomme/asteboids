@@ -37,14 +37,18 @@ func NewBoid(
 	b := Boid{}
 	b.AgentType = physics.BoidAgent
 
-	b.Init(x, y)
-	b.Log = log
-
 	b.Orientation = math.Pi / 32 * float64(rand.Intn(64))
-	b.Velocity = vector.Vector2D{
+
+	b.Init(vector.Vector2D{
 		X: boidVelocity * math.Cos(b.Orientation),
 		Y: boidVelocity * math.Sin(b.Orientation),
-	}
+	})
+	b.Log = log
+
+	b.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
 	b.PhysicWidth = 10
 	b.PhysicHeight = 10
 	b.ScreenWidth = screenWidth
@@ -70,9 +74,10 @@ func (b *Boid) Update() {
 	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
 	b.Orientation = b.Avoid(nearestAgent, physics.AsteroidAgent)
 
-	b.Velocity.X = boidVelocity * math.Cos(b.Orientation)
-	b.Velocity.Y = boidVelocity * math.Sin(b.Orientation)
-
+	b.Accelerate(vector.Vector2D{
+		X: boidVelocity * math.Cos(b.Orientation),
+		Y: boidVelocity * math.Sin(b.Orientation),
+	})
 }
 
 // Draw draws the game screen.

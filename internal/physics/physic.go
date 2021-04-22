@@ -43,7 +43,7 @@ type Physic interface {
 	// Update proceeds the agent state.
 	Update()
 	// Init initializes the physic body.
-	Init(float64, float64)
+	Init(vector.Vector2D)
 	// ID displays physic body unique ID.
 	ID() string
 	// String displays physic body information as a string.

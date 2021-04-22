@@ -28,8 +28,8 @@ func (pb *Body) String() string {
 		int(pb.PhysicHeight),
 		pb.Orientation,
 		pb.Orientation*180/math.Pi,
-		pb.Velocity.X,
-		pb.Velocity.Y)
+		pb.Velocity().X,
+		pb.Velocity().Y)
 }
 
 // Intersect returns true if the physical body collide another one.
@@ -66,6 +66,26 @@ func (pb *Body) Dimension() Size {
 // Position returns physical body position.
 func (pb *Body) Position() vector.Vector2D {
 	return pb.position
+}
+
+// Velocity returns physical body velocity.
+func (pb *Body) Velocity() vector.Vector2D {
+	return pb.velocity
+}
+
+// Move set physical body positiion.
+func (pb *Body) Move(position vector.Vector2D) {
+	pb.position = position
+}
+
+// Accelerate set physical body acceleration.
+func (pb *Body) Accelerate(acceleration vector.Vector2D) {
+	pb.acceleration = acceleration
+}
+
+// Acceleration returns physical body acceleration.
+func (pb *Body) Acceleration() vector.Vector2D {
+	return pb.acceleration
 }
 
 func (pb *Body) DrawBodyBoundaryBox(screen *ebiten.Image) {

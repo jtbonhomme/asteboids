@@ -4,6 +4,7 @@ import (
 	"math"
 )
 
+// Rotate change physical body orientation.
 func (pb *Body) Rotate(rotationAngle float64) {
 	pb.Orientation += rotationAngle
 	if pb.Orientation > 2*math.Pi {
@@ -19,35 +20,35 @@ func (pb *Body) Rotate(rotationAngle float64) {
 func (pb *Body) Update() {
 	pb.UpdateAcceleration(1)
 	pb.UpdateVelocity()
-	pb.UpdateVelocity()
+	pb.UpdatePosition()
 }
 
 // UpdatePosition compute new acceleration.
 func (pb *Body) UpdateAcceleration(i float64) {
-	pb.Acceleration.X = accelerationFactor * i * math.Cos(pb.Orientation)
-	pb.Acceleration.Y = accelerationFactor * i * math.Sin(pb.Orientation)
+	pb.acceleration.X = accelerationFactor * i * math.Cos(pb.Orientation)
+	pb.acceleration.Y = accelerationFactor * i * math.Sin(pb.Orientation)
 }
 
 // UpdatePosition compute new velocity.
 func (pb *Body) UpdateVelocity() {
-	pb.Velocity.X += pb.Acceleration.X - frictionFactor*pb.Velocity.X
-	pb.Velocity.Y += pb.Acceleration.Y - frictionFactor*pb.Velocity.Y
+	pb.velocity.X += pb.acceleration.X - frictionFactor*pb.velocity.X
+	pb.velocity.Y += pb.acceleration.Y - frictionFactor*pb.velocity.Y
 
-	velocityValue := pb.Velocity.X*pb.Velocity.X + pb.Velocity.Y*pb.Velocity.Y
+	velocityValue := pb.velocity.X*pb.velocity.X + pb.velocity.Y*pb.velocity.Y
 	if velocityValue > maxVelocity*maxVelocity {
-		pb.Velocity.X = maxVelocity * math.Cos(pb.Orientation)
-		pb.Velocity.Y = maxVelocity * math.Sin(pb.Orientation)
+		pb.velocity.X = maxVelocity * math.Cos(pb.Orientation)
+		pb.velocity.Y = maxVelocity * math.Sin(pb.Orientation)
 	}
 	if velocityValue < 0 {
-		pb.Velocity.X = 0
-		pb.Velocity.Y = 0
+		pb.velocity.X = 0
+		pb.velocity.Y = 0
 	}
 }
 
 // UpdatePosition compute new position.
 func (pb *Body) UpdatePosition() {
-	pb.position.X += velocityFactor * pb.Velocity.X
-	pb.position.Y += velocityFactor * pb.Velocity.Y
+	pb.position.X += velocityFactor * pb.velocity.X
+	pb.position.Y += velocityFactor * pb.velocity.Y
 
 	if pb.position.X > pb.ScreenWidth {
 		pb.position.X = 0

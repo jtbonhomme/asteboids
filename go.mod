@@ -8,6 +8,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.2.0
 	github.com/hajimehoshi/ebiten/v2 v2.0.8
+	github.com/hajimehoshi/file2byteslice v0.0.0-20200812174855-0e5e8a80490e // indirect
 	github.com/mattn/go-colorable v0.1.8
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/exp v0.0.0-20210405174845-4513512abef3 // indirect

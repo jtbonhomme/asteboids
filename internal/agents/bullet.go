@@ -37,14 +37,18 @@ func NewBullet(log *logrus.Logger,
 	b.AgentType = physics.BulletAgent
 	b.Unregister = cb
 
-	b.Init(x, y)
-	b.Log = log
-
 	b.Orientation = orientation
-	b.Velocity = vector.Vector2D{
+
+	b.Init(vector.Vector2D{
 		X: bulletVelocity * math.Cos(b.Orientation),
 		Y: bulletVelocity * math.Sin(b.Orientation),
-	}
+	})
+	b.Log = log
+
+	b.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
 	b.PhysicWidth = 16
 	b.PhysicHeight = 16
 	b.ScreenWidth = screenWidth

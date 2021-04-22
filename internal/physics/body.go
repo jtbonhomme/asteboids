@@ -19,8 +19,8 @@ type Body struct {
 	ScreenWidth  float64
 	ScreenHeight float64
 
-	Velocity     vector.Vector2D
-	Acceleration vector.Vector2D
+	velocity     vector.Vector2D
+	acceleration vector.Vector2D
 
 	Register   AgentRegister
 	Unregister AgentUnregister
@@ -31,10 +31,9 @@ type Body struct {
 }
 
 // Init initializes the physic body
-func (pb *Body) Init(x, y float64) {
+func (pb *Body) Init(velocity vector.Vector2D) {
 	pb.id = uuid.New()
-	pb.position.X = x
-	pb.position.Y = y
+	pb.velocity = velocity
 }
 
 // Draw draws the agent.

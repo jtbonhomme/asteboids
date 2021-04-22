@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	boidAcceleration float64 = 4.0
-	boidMaxVelocity  float64 = 5.0
+	boidMaxForce     float64 = 3.0
+	boidMaxVelocity  float64 = 4.0
 	separationFactor float64 = 1.0
 	cohesionFactor   float64 = 1.0
-	alignmentFactor  float64 = 1.5
+	alignmentFactor  float64 = 2.0
 )
 
 // Boid is a PhysicalBody agent.
@@ -71,7 +71,7 @@ func (b *Boid) Update() {
 	defer b.Body.UpdatePosition()
 
 	acceleration := vector.Vector2D{}
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 400.0)
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y, 500.0)
 
 	cohesion := b.cohesion(nearestAgent)
 	cohesion.Multiply(cohesionFactor)
@@ -103,24 +103,40 @@ func (b *Boid) Draw(screen *ebiten.Image) {
 
 // cohesion returns the force imposed by flocking cohesion rule.
 func (b *Boid) cohesion(flock []physics.Physic) vector.Vector2D {
-	return vector.Vector2D{
+	result := vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
+
+	return result
 }
 
 // separate returns the force imposed by flocking separation rule.
 func (b *Boid) separate(flock []physics.Physic) vector.Vector2D {
-	return vector.Vector2D{
+	result := vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
+
+	return result
 }
 
 // align returns the force imposed by flocking alignment rule.
-func (b *Boid) align(flock []physics.Physic) vector.Vector2D {
-	return vector.Vector2D{
+func (b *Boid) align(agents []physics.Physic) vector.Vector2D {
+	result := vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
+	var nBoids float64 = 0.0
+	for _, agent := range agents {
+		if agent.Type() == physics.BoidAgent {
+			nBoids++
+			result.Add(agent.Velocity())
+		}
+	}
+	result.Divide(nBoids)
+	result.Multiply(boidMaxVelocity)
+	result.Subtract(b.Velocity())
+	result.Limit(boidMaxForce)
+	return result
 }

@@ -59,6 +59,8 @@ type Physic interface {
 	Type() string
 	// Explode proceeds the agent explosion and termination.
 	Explode()
+	// Velocity returns physical body velocity.
+	Velocity() vector.Vector2D
 }
 
 // AgentRegister is a function to register an agent.
@@ -67,5 +69,6 @@ type AgentRegister func(Physic)
 // AgentUnregister is a function to unregister an agent.
 type AgentUnregister func(string, string)
 
+// Todo change float64, float64 parameter by a Position
 // AgentVision is a function used by agents to "see" around them.
 type AgentVision func(float64, float64, float64) []Physic

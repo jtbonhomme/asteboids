@@ -59,6 +59,19 @@ $ make debug
 * `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)
 * `cmd+q`: exit
 
+## Flocking
+
+In his book [Nature Of Code](https://www.amazon.fr/Nature-Code-Simulating-Natural-Processing/dp/0985930802), Daniel Shiffman reminds us the three rules of flocking:
+
+![](flocking.png)
+
+1. Separation (also known as “avoidance”): Steer to avoid colliding with your neighbors.
+2. Alignment (also known as “copy”): Steer in the same direction as your neighbors.
+3. Cohesion (also known as “center”): Steer towards the center of your neighbors (stay
+with the group).
+
+The boids in Asteboids implement these 3 rules.
+
 ## Resources
 
 ### Fonts

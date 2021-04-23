@@ -1,0 +1,9 @@
+---
+debug: false
+optim: false
+asteroids: 4
+boids: 40
+screenWidth: 1080
+screenHeight: 720
+scoreTimeUnit: 5
+autoGenerateAsteroidsRatio: 10

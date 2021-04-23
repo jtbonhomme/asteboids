@@ -12,31 +12,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/agents"
 	"github.com/jtbonhomme/asteboids/internal/ai"
+	"github.com/jtbonhomme/asteboids/internal/config"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	defaultScreenWidth         float64 = 1080
-	defaultScreenHeight        float64 = 720
-	scoreTimeUnit              float64 = 5
-	autoGenerateAsteroidsRatio float64 = 10
-)
-
 type Game struct {
 	log             *logrus.Logger
+	conf            *config.Config
 	gameOver        bool
 	gameWon         bool
-	nAsteroids      int
-	nBoids          int
 	startTime       time.Time
 	gameDuration    time.Duration
 	highestDuration time.Duration
 	highScore       int
 	kills           int
 	debug           bool
-	ScreenWidth     float64
-	ScreenHeight    float64
 	backgroundColor color.RGBA
 	starships       map[string]physics.Physic
 	asteroids       map[string]physics.Physic
@@ -50,24 +41,20 @@ type Game struct {
 }
 
 func New(log *logrus.Logger,
-	nAsteroids, nBoids int,
-	debug bool) *Game {
+	conf *config.Config) *Game {
 	log.Infof("New Game")
 	rand.Seed(time.Now().UnixNano())
 	g := &Game{
 		log:             log,
+		conf:            conf,
 		gameOver:        false,
 		gameWon:         false,
-		nAsteroids:      nAsteroids,
-		nBoids:          nBoids,
 		startTime:       time.Now(),
 		gameDuration:    0,
 		kills:           0,
 		highScore:       0,
 		highestDuration: 0,
-		debug:           debug,
-		ScreenWidth:     defaultScreenWidth,
-		ScreenHeight:    defaultScreenHeight,
+		debug:           conf.Debug,
 		backgroundColor: color.RGBA{0x10, 0x10, 0x10, 0xff},
 		starships:       make(map[string]physics.Physic),
 		asteroids:       make(map[string]physics.Physic),
@@ -111,7 +98,7 @@ func New(log *logrus.Logger,
 
 // LoadImage loads a picture into an ebiten image.
 func (g *Game) LoadImage(file string) (*ebiten.Image, error) {
-	newImage := ebiten.NewImage(int(g.ScreenWidth), int(g.ScreenHeight))
+	newImage := ebiten.NewImage(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight))
 
 	f, err := os.Open(file)
 	if err != nil {
@@ -139,10 +126,10 @@ func (g *Game) StartGame() {
 	// add starship
 	p := agents.NewStarship(
 		g.log,
-		g.ScreenWidth/2,
-		g.ScreenHeight/2,
-		g.ScreenWidth,
-		g.ScreenHeight,
+		g.conf.ScreenWidth/2,
+		g.conf.ScreenHeight/2,
+		g.conf.ScreenWidth,
+		g.conf.ScreenHeight,
 		g.Register,
 		g.Unregister,
 		g.starshipImage,
@@ -152,12 +139,12 @@ func (g *Game) StartGame() {
 	g.Register(p)
 
 	// add asteroids
-	for i := 0; i < g.nAsteroids; i++ {
+	for i := 0; i < g.conf.Asteroids; i++ {
 		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
 
 	// add boids
-	for i := 0; i < g.nBoids; i++ {
+	for i := 0; i < g.conf.Boids; i++ {
 		g.AddBoid()
 	}
 
@@ -171,9 +158,9 @@ func (g *Game) StartGame() {
 // AddAsteroid insert a new asteroid in the game.
 func (g *Game) AddAsteroid(asteroidImage *ebiten.Image) {
 	a := agents.NewAsteroid(g.log,
-		float64(rand.Intn(int(g.ScreenWidth))),
-		float64(rand.Intn(int(g.ScreenHeight/4))),
-		g.ScreenWidth, g.ScreenHeight,
+		float64(rand.Intn(int(g.conf.ScreenWidth))),
+		float64(rand.Intn(int(g.conf.ScreenHeight/4))),
+		g.conf.ScreenWidth, g.conf.ScreenHeight,
 		g.Register, g.Unregister,
 		asteroidImage,
 		g.rubbleImages,
@@ -184,9 +171,9 @@ func (g *Game) AddAsteroid(asteroidImage *ebiten.Image) {
 // AddAsteroid insert a new asteroid in the game.
 func (g *Game) AddBoid() {
 	b := ai.NewBoid(g.log,
-		float64(rand.Intn(int(g.ScreenWidth))),
-		float64(rand.Intn(int(g.ScreenHeight/4))),
-		g.ScreenWidth, g.ScreenHeight,
+		float64(rand.Intn(int(g.conf.ScreenWidth))),
+		float64(rand.Intn(int(g.conf.ScreenHeight/4))),
+		g.conf.ScreenWidth, g.conf.ScreenHeight,
 		g.boidImage,
 		g.Vision,
 		g.debug)
@@ -274,11 +261,11 @@ func (g *Game) Unregister(id, agentType string) {
 // Layout takes the outside size (e.g., the window size) and returns the (logical) screen size.
 // If you don't have to adjust the screen size with the outside size, just return a fixed size.
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return int(g.ScreenWidth), int(g.ScreenHeight)
+	return int(g.conf.ScreenWidth), int(g.conf.ScreenHeight)
 }
 
 func (g *Game) String() string {
 	return fmt.Sprintf(`Asteboids
-	- screen size: %d x %d
-`, g.ScreenWidth, g.ScreenHeight)
+	- screen size: %0.2f x %0.2f
+`, g.conf.ScreenWidth, g.conf.ScreenHeight)
 }

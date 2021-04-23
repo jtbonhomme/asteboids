@@ -35,6 +35,14 @@ This repository is a simple port of the original game play in Go, while replacin
 
 ### ✨ [Demo](https://jtbonhomme.github.io/asteboids)
 
+## Build
+
+```sh
+$ make build
+```
+
+Will create an `asteboids` binary executable file.
+
 ## Run
 
 ```sh
@@ -49,6 +57,15 @@ $ make debug
 
 ![](screen3.png)
 
+
+## Run in a browser with Web Assembly
+
+```sh
+$ make wasm
+```
+
+**⚠** This feature is **broken** since integration with `segmentio/conf` **⚠** (see: [#14](https://github.com/jtbonhomme/asteboids/issues/14))
+
 ## Keyboard control
 
 * `key up`: startship move forward
@@ -58,6 +75,40 @@ $ make debug
 * `enter`: game restart
 * `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)
 * `cmd+q`: exit
+
+
+## Options
+
+By default, `Asteboids` will read from a configurable file defined by the `-config-file` command line argument, then load values present in the environment, and finally load the program arguments.
+
+### CLI
+
+Passing configuration via the program arguments:
+
+```sh
+$ go run cmd/asteboids/main.go -debug
+```
+
+### Environment variables
+
+Passing configuration via the environment variables:
+
+```sh
+$ ASTEBOIDS_BOIDS=100 go run cmd/asteboids/main.go
+```
+
+### Configuration File
+
+Passing configuration via a configuration file:
+
+```sh
+$ go run cmd/asteboids/main.go -config-file ./custom_config.yml
+```
+
+Default configuration is located in the file [config.yml](config.yml)
+
+### Option List
+
 
 ## Flocking
 

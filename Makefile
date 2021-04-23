@@ -13,10 +13,10 @@ test: lint ## Go test the repo.
 	go test ./... -cover -coverprofile coverage.out
 
 run: ## Run the main program.
-	go run cmd/asteboids/main.go
+	go run cmd/asteboids/main.go -config-file ./config.yml
 
 debug: ## Run the main program.
-	go run cmd/asteboids/main.go -debug
+	go run cmd/asteboids/main.go -config-file ./config.yml -debug -optim
 
 pprof: ## Run the main program with profiling.
 	go run cmd/asteboids/main.go -debug -cpuprofile profile.prof

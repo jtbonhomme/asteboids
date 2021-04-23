@@ -10,6 +10,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.0.8
 	github.com/hajimehoshi/file2byteslice v0.0.0-20200812174855-0e5e8a80490e // indirect
 	github.com/mattn/go-colorable v0.1.8
+	github.com/segmentio/conf v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/exp v0.0.0-20210405174845-4513512abef3 // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb

@@ -63,7 +63,7 @@ func (g *Game) Update() error {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)
 	}
 	// periodically add new asteroids
-	if int(g.gameDuration.Seconds()/autoGenerateAsteroidsRatio) > len(g.asteroids) {
+	if int(g.gameDuration.Seconds()/g.conf.AutoGenerateAsteroidsRatio) > len(g.asteroids) {
 		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
 	return nil

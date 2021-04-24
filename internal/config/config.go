@@ -1,6 +1,6 @@
 package config
 
-import "github.com/segmentio/conf"
+import "github.com/jtbonhomme/conf"
 
 type Config struct {
 	Debug                      bool    `conf:"debug" help:"Debug log level activated."`

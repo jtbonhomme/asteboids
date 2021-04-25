@@ -4,6 +4,7 @@ import (
 
 	// anonymous import for png decoder
 	_ "image/png"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/vector"
@@ -61,6 +62,8 @@ type Physic interface {
 	Explode()
 	// Velocity returns physical body velocity.
 	Velocity() vector.Vector2D
+	// Dump write out internal agent's state.
+	Dump(*os.File) error
 }
 
 // AgentRegister is a function to register an agent.
@@ -71,4 +74,4 @@ type AgentUnregister func(string, string)
 
 // Todo change float64, float64 parameter by a Position
 // AgentVision is a function used by agents to "see" around them.
-type AgentVision func(float64, float64, float64) []Physic
+type AgentVision func(float64, float64) []Physic

@@ -135,7 +135,6 @@ func (g *Game) StartGame() {
 		g.starshipImage,
 		g.bulletImage,
 		g.debug)
-	g.log.Debugf("added starship: %s", p.ID())
 	g.Register(p)
 
 	// add asteroids
@@ -199,8 +198,9 @@ func (g *Game) RestartGame() {
 }
 
 // Vision returns all agents located in a radius from (x,y)
-func (g *Game) Vision(x, y, radius float64) []physics.Physic {
+func (g *Game) Vision(x, y float64) []physics.Physic {
 	nearestAgents := []physics.Physic{}
+	radius := g.conf.VisionRadius
 
 	for _, v := range g.starships {
 		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {

@@ -1,8 +1,12 @@
 package physics
 
 import (
+	"image/color"
+
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
@@ -49,5 +53,14 @@ func (pb *Body) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(pb.position.X, pb.position.Y)
 	if pb.Debug {
 		pb.DrawBodyBoundaryBox(screen)
+		msg := pb.String()
+		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
+		textWidth := textDim.Max.X - textDim.Min.X
+		text.Draw(screen,
+			msg,
+			fonts.MonoSansRegularFont,
+			int(pb.Position().X)-textWidth/2,
+			int(pb.Position().Y+pb.PhysicHeight/2+5),
+			color.Gray16{0x999f})
 	}
 }

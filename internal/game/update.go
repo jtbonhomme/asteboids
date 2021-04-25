@@ -1,9 +1,12 @@
 package game
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 )
 
@@ -63,8 +66,55 @@ func (g *Game) Update() error {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)
 	}
 	// periodically add new asteroids
-	if int(g.gameDuration.Seconds()/g.conf.AutoGenerateAsteroidsRatio) > len(g.asteroids) {
+	if g.conf.AutoGenerateAsteroidsRatio > 0 && int(g.gameDuration.Seconds()/g.conf.AutoGenerateAsteroidsRatio) > len(g.asteroids) {
 		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		err := g.Dump()
+		if err != nil {
+			g.log.Errorf("can't dump: %s", err.Error())
+		}
+	}
+
 	return nil
+}
+
+// Dump saves internal game state in a file.
+func (g *Game) Dump() error {
+	var err error
+	const datetimeFormat = "20060102030405000"
+
+	now := time.Now()
+	name := fmt.Sprintf("asteboids_%s.dump", now.Format(datetimeFormat))
+	f, err := os.Create(name)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	for _, a := range g.starships {
+		err = a.Dump(f)
+		if err != nil {
+			return err
+		}
+	}
+	for _, a := range g.asteroids {
+		err = a.Dump(f)
+		if err != nil {
+			return err
+		}
+	}
+	for _, a := range g.bullets {
+		err = a.Dump(f)
+		if err != nil {
+			return err
+		}
+	}
+	for _, a := range g.boids {
+		err = a.Dump(f)
+		if err != nil {
+			return err
+		}
+	}
+	g.log.Infof("Saved dump: %s", name)
+	return err
 }

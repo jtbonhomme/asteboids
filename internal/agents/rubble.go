@@ -1,7 +1,6 @@
 package agents
 
 import (
-	"image/color"
 	"math"
 	"math/rand"
 
@@ -9,8 +8,6 @@ import (
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
@@ -73,13 +70,6 @@ func (r *Rubble) Update() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (r *Rubble) Draw(screen *ebiten.Image) {
 	defer r.Body.Draw(screen)
-
-	if r.Debug {
-		msg := r.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
-		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(r.Position().X)-textWidth/2, int(r.Position().Y+r.PhysicHeight/2+5), color.Gray16{0x999f})
-	}
 }
 
 // Explode proceeds the rubble termination.

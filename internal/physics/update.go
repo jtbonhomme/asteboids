@@ -4,15 +4,19 @@ import (
 	"math"
 )
 
-// Rotate change physical body orientation.
-func (pb *Body) Rotate(rotationAngle float64) {
-	pb.Orientation += rotationAngle
+func (pb *Body) normalizeOrientation() {
 	if pb.Orientation > 2*math.Pi {
 		pb.Orientation -= 2 * math.Pi
 	}
 	if pb.Orientation < 0 {
 		pb.Orientation += 2 * math.Pi
 	}
+}
+
+// Rotate change physical body orientation.
+func (pb *Body) Rotate(rotationAngle float64) {
+	pb.Orientation += rotationAngle
+	pb.normalizeOrientation()
 }
 
 // Update is called every tick (1/60 [s] by default).
@@ -29,6 +33,15 @@ func (pb *Body) UpdateVelocity() {
 
 	// limit velocity to max value
 	pb.velocity.Limit(pb.maxVelocity)
+}
+
+// UpdateOrientation computes orientation from velocity.
+func (pb *Body) UpdateOrientation() {
+	// Update orientation from velocity
+	if !pb.velocity.IsNil() {
+		pb.Orientation = pb.velocity.Theta()
+	}
+	pb.normalizeOrientation()
 }
 
 // UpdatePosition compute new position.

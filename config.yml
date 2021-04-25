@@ -7,3 +7,5 @@ screenWidth: 1080
 screenHeight: 720
 scoreTimeUnit: 5
 autoGenerateAsteroidsRatio: 10
+visionRadius: 150
+maxTPS: 60

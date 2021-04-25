@@ -1,14 +1,11 @@
 package agents
 
 import (
-	"image/color"
 	"time"
 
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
@@ -75,8 +72,6 @@ func NewStarship(
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
-	defer s.Body.UpdatePosition()
-
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		s.Rotate(-rotationAngle)
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
@@ -103,7 +98,7 @@ func (s *Starship) Update() {
 	}
 
 	s.UpdateVelocity()
-
+	s.UpdatePosition()
 }
 
 // Shot adds a new bullet to the game.
@@ -127,19 +122,10 @@ func (s *Starship) Shot() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
-	defer s.Body.Draw(screen)
-
-	// TODO write a debug function in physics/body.go
-	if s.Debug {
-		msg := s.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
-		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.Position().X)-textWidth/2, int(s.Position().Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
-	}
+	s.Body.Draw(screen)
 }
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
-	defer s.Explode()
-	s.Log.Debugf("SelfDestroy starship %s", s.ID())
+	s.Explode()
 }

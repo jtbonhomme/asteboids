@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"os"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -20,7 +21,7 @@ func (pb *Body) ID() string {
 
 // String displays physic body information as a string.
 func (pb *Body) String() string {
-	return fmt.Sprintf("%s: [%d, %d] [%d, %d]\n%0.2f rad (%0.0f °) {%0.2f %0.2f}",
+	return fmt.Sprintf("%s: pos [%d, %d]\nsize [%d, %d] orient %0.2f rad (%0.0f °)\nvel {%0.2f %0.2f} acc {%0.2f %0.2f}",
 		pb.Type(),
 		int(pb.position.X),
 		int(pb.position.Y),
@@ -29,7 +30,9 @@ func (pb *Body) String() string {
 		pb.Orientation,
 		pb.Orientation*180/math.Pi,
 		pb.Velocity().X,
-		pb.Velocity().Y)
+		pb.Velocity().Y,
+		pb.Acceleration().X,
+		pb.Acceleration().Y)
 }
 
 // Intersect returns true if the physical body collide another one.
@@ -140,4 +143,10 @@ func (pb *Body) Type() string {
 // Explode proceeds the agent explosion and termination.
 func (pb *Body) Explode() {
 	pb.Unregister(pb.ID(), pb.Type())
+}
+
+// Dump write out internal agent's state.
+func (pb *Body) Dump(f *os.File) error {
+	_, err := f.Write([]byte("\n *** " + pb.ID() + " ***\n" + pb.String() + "\n"))
+	return err
 }

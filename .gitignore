@@ -9,3 +9,4 @@ cover.xml
 coverage.out
 *.prof
 profile*.png
+*.dump

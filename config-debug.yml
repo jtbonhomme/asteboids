@@ -1,0 +1,11 @@
+---
+debug: true
+optim: false
+asteroids: 0
+boids: 10
+screenWidth: 800
+screenHeight: 800
+scoreTimeUnit: 5
+autoGenerateAsteroidsRatio: 0
+visionRadius: 30
+maxTPS: 10

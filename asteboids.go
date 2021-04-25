@@ -22,6 +22,10 @@ func Run(log *logrus.Logger, conf *config.Config) error {
 		ebiten.SetVsyncEnabled(false)
 		ebiten.SetInitFocused(false)
 	}
+	if conf.MaxTPS != 0 {
+		ebiten.SetMaxTPS(conf.MaxTPS)
+	}
+
 	// Call ebiten.RunGame to start your game loop.
 	err := ebiten.RunGame(g)
 	if err != nil {

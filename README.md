@@ -74,8 +74,26 @@ $ make wasm
 * `space`: startship shot
 * `enter`: game restart
 * `s`: takes a screenshot (file is stored as `screenshot_<date><time>.png`)
+* `d`: dumps internal game state (file is stored as `asteboids_<date><time>.dump`)
 * `cmd+q`: exit
 
+## Makefile targets
+
+```
+help                 Show this help.
+lint                 Execute Golangci-lint on the repo.
+test                 Go test the repo.
+run                  Run the main program.
+debug                Run the main program.
+pprof                Run the main program with profiling.
+clean                Build the main program.
+build                Build the main program.
+wasm                 Build for WASM distribution.
+badge                Generate a coverage badge.
+cover                Measure the test coverage.
+login                Log in to docker hub registry.
+build-docker         Build docker images.
+```
 
 ## Options
 
@@ -94,7 +112,7 @@ $ go run cmd/asteboids/main.go -debug
 Passing configuration via the environment variables:
 
 ```sh
-$ ASTEBOIDS_BOIDS=100 go run cmd/asteboids/main.go
+$ MAIN_BOIDS=100 go run cmd/asteboids/main.go
 ```
 
 ### Configuration File
@@ -109,6 +127,16 @@ Default configuration is located in the file [config.yml](config.yml)
 
 ### Option List
 
+* `debug`
+* `optim`
+* `asteroids`
+* `boids`
+* `screenWidth`
+* `screenHeight`
+* `scoreTimeUnit`
+* `autoGenerateAsteroidsRatio`
+* `visionRadius`
+* `maxTPS`
 
 ## Flocking
 

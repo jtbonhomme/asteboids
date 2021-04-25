@@ -91,10 +91,8 @@ func (b *Boid) Update() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Boid) Draw(screen *ebiten.Image) {
 	defer b.Body.Draw(screen)
-	if b.Debug {
-		nearestAgent := b.Vision(b.Position().X, b.Position().Y)
-		b.LinkAgents(screen, nearestAgent, physics.BoidAgent)
-	}
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y)
+	b.LinkAgents(screen, nearestAgent, []string{physics.BoidAgent})
 }
 
 func (b *Boid) seek(target vector.Vector2D) vector.Vector2D {

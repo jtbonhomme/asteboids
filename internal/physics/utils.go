@@ -136,16 +136,25 @@ func (pb *Body) DrawBodyBoundaryBox(screen *ebiten.Image) {
 	)
 }
 
+func isElementOf(elt string, arr []string) bool {
+	for i := 0; i < len(arr); i++ {
+		if elt == arr[i] {
+			return true
+		}
+	}
+	return false
+}
+
 // LinkAgents draws a perimter around the body, based on a given radius.
-func (pb *Body) LinkAgents(screen *ebiten.Image, agents []Physic, agentType string) {
+func (pb *Body) LinkAgents(screen *ebiten.Image, agents []Physic, agentTypes []string) {
 	for _, a := range agents {
-		if a.Type() == agentType {
+		if isElementOf(a.Type(), agentTypes) {
 			// Draw line between agents
 			ebitenutil.DrawLine(
 				screen,
 				pb.Position().X, pb.Position().Y,
 				a.Position().X, a.Position().Y,
-				color.Gray16{0x6666},
+				color.Gray16{0x2264},
 			)
 		}
 	}

@@ -132,6 +132,7 @@ func (g *Game) StartGame() {
 		g.conf.ScreenHeight,
 		g.Register,
 		g.Unregister,
+		g.Vision,
 		g.starshipImage,
 		g.bulletImage,
 		g.debug)

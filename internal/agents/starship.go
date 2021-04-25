@@ -33,6 +33,7 @@ func NewStarship(
 	screenWidth, screenHeight float64,
 	cbr physics.AgentRegister,
 	cbu physics.AgentUnregister,
+	vision physics.AgentVision,
 	starshipImage *ebiten.Image,
 	bulletImage *ebiten.Image,
 	debug bool) *Starship {
@@ -42,6 +43,7 @@ func NewStarship(
 	s.AgentType = physics.StarshipAgent
 	s.Register = cbr
 	s.Unregister = cbu
+	s.Vision = vision
 	s.Init(vector.Vector2D{
 		X: 0,
 		Y: 0,
@@ -122,7 +124,9 @@ func (s *Starship) Shot() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
-	s.Body.Draw(screen)
+	defer s.Body.Draw(screen)
+	nearestAgent := s.Vision(s.Position().X, s.Position().Y)
+	s.LinkAgents(screen, nearestAgent, []string{physics.AsteroidAgent, physics.RubbleAgent})
 }
 
 // SelfDestroy removes the agent from the game

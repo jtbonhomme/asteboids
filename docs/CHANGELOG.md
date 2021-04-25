@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/jtbonhomme/asteboids/compare/0.2.1...0.3.0) (2021-04-25)
+
+
+### Features
+
+* add sounds ([#18](https://github.com/jtbonhomme/asteboids/issues/18)) ([a95e4b9](https://github.com/jtbonhomme/asteboids/commit/a95e4b95da3637e5756987626fdc151de57bbf95))
+
 ## [0.2.1](https://github.com/jtbonhomme/asteboids/compare/0.2.0...0.2.1) (2021-04-25)
 
 

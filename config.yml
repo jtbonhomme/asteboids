@@ -1,8 +1,9 @@
 ---
+mute: true
 debug: false
 optim: false
 asteroids: 4
-boids: 40
+boids: 60
 screenWidth: 1080
 screenHeight: 720
 scoreTimeUnit: 5

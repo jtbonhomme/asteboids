@@ -137,6 +137,7 @@ Default configuration is located in the file [config.yml](config.yml)
 * `autoGenerateAsteroidsRatio`
 * `visionRadius`
 * `maxTPS`
+* `mute`
 
 ## Flocking
 

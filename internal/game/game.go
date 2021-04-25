@@ -20,6 +20,7 @@ type Game struct {
 	conf            *config.Config
 	gameOver        bool
 	gameWon         bool
+	mute            bool
 	startTime       time.Time
 	gameDuration    time.Duration
 	highestDuration time.Duration
@@ -47,6 +48,7 @@ func New(log *logrus.Logger,
 		conf:            conf,
 		gameOver:        false,
 		gameWon:         false,
+		mute:            conf.Mute,
 		startTime:       time.Now(),
 		gameDuration:    0,
 		kills:           0,

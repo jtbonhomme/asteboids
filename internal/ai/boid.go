@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	boidMaxForce     float64 = 3.0
-	boidMaxVelocity  float64 = 4.0
-	separationFactor float64 = 1.0
-	cohesionFactor   float64 = 1.0
-	alignmentFactor  float64 = 1.0
+	boidMaxForce     float64 = 0.3
+	boidMaxVelocity  float64 = 3.0
+	separationFactor float64 = 1.9
+	cohesionFactor   float64 = 1.5
+	alignmentFactor  float64 = 1.3
 )
 
 // Boid is a PhysicalBody agent.
@@ -134,7 +134,25 @@ func (b *Boid) separate(agents []physics.Physic) vector.Vector2D {
 		X: 0,
 		Y: 0,
 	}
-
+	var nBoids float64 = 0.0
+	for _, agent := range agents {
+		if /*agent.Type() == physics.BoidAgent && */ agent.ID() != b.ID() {
+			nBoids++
+			d := b.Position().Distance(agent.Position())
+			diff := b.Position()
+			diff.Subtract(agent.Position())
+			diff.Normalize()
+			diff.Divide(d)
+			result.Add(diff)
+		}
+	}
+	if nBoids > 0 {
+		result.Divide(nBoids)
+		result.Normalize()
+		result.Multiply(boidMaxVelocity)
+		result.Subtract(b.Velocity())
+		result.Limit(boidMaxForce)
+	}
 	return result
 }
 

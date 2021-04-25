@@ -97,18 +97,39 @@ func (b *Boid) Draw(screen *ebiten.Image) {
 	}
 }
 
+func (b *Boid) seek(target vector.Vector2D) vector.Vector2D {
+	desired := b.Position()
+	desired.Subtract(target)
+	desired.Normalize()
+	desired.Multiply(boidMaxVelocity)
+	steer := b.Velocity()
+	steer.Subtract(desired)
+	steer.Limit(boidMaxForce)
+	return steer
+}
+
 // cohesion returns the force imposed by flocking cohesion rule.
-func (b *Boid) cohesion(flock []physics.Physic) vector.Vector2D {
+func (b *Boid) cohesion(agents []physics.Physic) vector.Vector2D {
 	result := vector.Vector2D{
 		X: 0,
 		Y: 0,
 	}
-
+	var nBoids float64 = 0.0
+	for _, agent := range agents {
+		if agent.Type() == physics.BoidAgent && agent.ID() != b.ID() {
+			nBoids++
+			result.Add(agent.Position())
+		}
+	}
+	if nBoids > 0 {
+		result.Divide(nBoids)
+		result = b.seek(result)
+	}
 	return result
 }
 
 // separate returns the force imposed by flocking separation rule.
-func (b *Boid) separate(flock []physics.Physic) vector.Vector2D {
+func (b *Boid) separate(agents []physics.Physic) vector.Vector2D {
 	result := vector.Vector2D{
 		X: 0,
 		Y: 0,

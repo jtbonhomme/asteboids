@@ -30,9 +30,6 @@ func (g *Game) UpdateAgents() {
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
-	// Update the agents
-	g.UpdateAgents()
-
 	// detect starship collision with asteroids
 	for _, starship := range g.starships {
 		_, ok := starship.IntersectMultiple(g.asteroids)
@@ -55,6 +52,9 @@ func (g *Game) Update() error {
 			}
 		}
 	}
+
+	// Update the agents
+	g.UpdateAgents()
 
 	// game ends when there is no starship left
 	if len(g.starships) == 0 {

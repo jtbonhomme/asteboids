@@ -5,6 +5,8 @@ import (
 	"math/rand"
 
 	// anonymous import for png decoder
+
+	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -25,6 +27,14 @@ const (
 // It represents a single autonomous agent.
 type Boid struct {
 	physics.Body
+}
+
+func rayVertices(x1, y1, x2, y2, x3, y3 float64) []ebiten.Vertex {
+	return []ebiten.Vertex{
+		{DstX: float32(x1), DstY: float32(y1), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+		{DstX: float32(x2), DstY: float32(y2), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+		{DstX: float32(x3), DstY: float32(y3), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+	}
 }
 
 // NewBoid creates a new Boid (PhysicalBody agent)
@@ -56,7 +66,23 @@ func NewBoid(
 	b.ScreenWidth = screenWidth
 	b.ScreenHeight = screenHeight
 
-	b.Image = boidImage
+	emptyImage := ebiten.NewImage(10, 10)
+	emptyImage.Fill(color.RGBA{100, 100, 200, 255})
+	op := &ebiten.DrawTrianglesOptions{}
+	op.Address = ebiten.AddressRepeat
+	op.CompositeMode = ebiten.CompositeModeSourceOut
+	b.Image = ebiten.NewImage(10, 10)
+	b.Image.DrawTriangles(
+		[]ebiten.Vertex{
+			{DstX: float32(0), DstY: float32(0), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+			{DstX: float32(10), DstY: float32(5), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+			{DstX: float32(5), DstY: float32(5), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+			{DstX: float32(0), DstY: float32(10), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
+		},
+		[]uint16{0, 1, 2, 3, 1, 2},
+		emptyImage,
+		op,
+	)
 	b.Vision = vision
 	b.Debug = debug
 	return &b

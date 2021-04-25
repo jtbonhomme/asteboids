@@ -4,7 +4,7 @@ import "github.com/jtbonhomme/conf"
 
 const (
 	defaultAsteroids        int     = 4
-	defaultBoids            int     = 60
+	defaultBoids            int     = 70
 	defaultScreenWidth      float64 = 1080
 	defaultScreenHeight     float64 = 720
 	defaultScoreTimeUnit    float64 = 5

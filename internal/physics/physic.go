@@ -12,7 +12,6 @@ import (
 
 const (
 	defaultMaxVelocity float64 = 3.5
-	collisionPrecision float64 = 1.0
 )
 
 const (

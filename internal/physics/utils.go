@@ -40,10 +40,10 @@ func (pb *Body) String() string {
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 func (pb *Body) Intersect(p Physic) bool {
 	ax, ay := pb.position.X, pb.position.Y
-	aw, ah := pb.Dimension().W*collisionPrecision, pb.Dimension().H*collisionPrecision
+	aw, ah := pb.Dimension().W, pb.Dimension().H
 
 	bx, by := p.Position().X, p.Position().Y
-	bw, bh := p.Dimension().W*collisionPrecision, p.Dimension().H*collisionPrecision
+	bw, bh := p.Dimension().W, p.Dimension().H
 
 	return (ax < bx+bw && ay < by+bh) && (ax+aw > bx && ay+ah > by)
 }
@@ -52,6 +52,13 @@ func (pb *Body) Intersect(p Physic) bool {
 func (pb *Body) IntersectMultiple(physics map[string]Physic) (string, bool) {
 	for _, p := range physics {
 		if pb.Intersect(p) {
+			pb.Log.Warnf("%s [%d , %d] (%dx%d) intersect with %s [%d , %d] (%dx%d)",
+				pb.ID(),
+				int(pb.Position().X), int(pb.Position().Y),
+				int(pb.Dimension().W), int(pb.Dimension().H),
+				p.ID(),
+				int(p.Position().X), int(p.Position().Y),
+				int(p.Dimension().W), int(p.Dimension().H))
 			return p.ID(), true
 		}
 	}
@@ -174,4 +181,16 @@ func (pb *Body) Explode() {
 func (pb *Body) Dump(f *os.File) error {
 	_, err := f.Write([]byte("\n *** " + pb.ID() + " ***\n" + pb.String() + "\n"))
 	return err
+}
+
+// NewBody creates a body
+func NewBody(x, y, w, h float64) *Body {
+	return &Body{
+		position: vector.Vector2D{
+			X: x,
+			Y: y,
+		},
+		PhysicWidth:  w,
+		PhysicHeight: h,
+	}
 }

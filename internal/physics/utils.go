@@ -96,6 +96,7 @@ func (pb *Body) Acceleration() vector.Vector2D {
 	return pb.acceleration
 }
 
+// DrawBodyBoundaryBox draws a box around the body, based on its dimension.
 func (pb *Body) DrawBodyBoundaryBox(screen *ebiten.Image) {
 	// Top boundary
 	ebitenutil.DrawLine(
@@ -133,6 +134,21 @@ func (pb *Body) DrawBodyBoundaryBox(screen *ebiten.Image) {
 		pb.position.Y+pb.PhysicHeight/2,
 		color.Gray16{0x6666},
 	)
+}
+
+// LinkAgents draws a perimter around the body, based on a given radius.
+func (pb *Body) LinkAgents(screen *ebiten.Image, agents []Physic, agentType string) {
+	for _, a := range agents {
+		if a.Type() == agentType {
+			// Draw line between agents
+			ebitenutil.DrawLine(
+				screen,
+				pb.Position().X, pb.Position().Y,
+				a.Position().X, a.Position().Y,
+				color.Gray16{0x6666},
+			)
+		}
+	}
 }
 
 // Type returns physical body agent type as a string.

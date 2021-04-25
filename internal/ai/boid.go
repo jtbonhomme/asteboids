@@ -18,7 +18,7 @@ const (
 	boidMaxVelocity  float64 = 4.0
 	separationFactor float64 = 1.0
 	cohesionFactor   float64 = 1.0
-	alignmentFactor  float64 = 1.4
+	alignmentFactor  float64 = 1.0
 )
 
 // Boid is a PhysicalBody agent.
@@ -91,6 +91,10 @@ func (b *Boid) Update() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Boid) Draw(screen *ebiten.Image) {
 	defer b.Body.Draw(screen)
+	if b.Debug {
+		nearestAgent := b.Vision(b.Position().X, b.Position().Y)
+		b.LinkAgents(screen, nearestAgent, physics.BoidAgent)
+	}
 }
 
 // cohesion returns the force imposed by flocking cohesion rule.

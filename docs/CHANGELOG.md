@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/jtbonhomme/asteboids/compare/0.2.0...0.2.1) (2021-04-25)
+
+
+### Bug Fixes
+
+* [#3](https://github.com/jtbonhomme/asteboids/issues/3) ([283585a](https://github.com/jtbonhomme/asteboids/commit/283585a9da29e70ff05b03e183613cbd8e794273))
+
 # [0.2.0](https://github.com/jtbonhomme/asteboids/compare/v0.1.1...0.2.0) (2021-04-25)
 
 

@@ -1,3 +1,21 @@
+# [0.2.0](https://github.com/jtbonhomme/asteboids/compare/v0.1.1...0.2.0) (2021-04-25)
+
+
+### Bug Fixes
+
+* update github action for tests ([dbc32fe](https://github.com/jtbonhomme/asteboids/commit/dbc32fe22a26b0289c68e7f35a33fae75f7fc27d))
+* wasm build ([b241c97](https://github.com/jtbonhomme/asteboids/commit/b241c97a7000d4dc1b05949264da4c639b642bf3))
+
+
+### Features
+
+* add cohesion ([4dd1c46](https://github.com/jtbonhomme/asteboids/commit/4dd1c4616d103cd6f73de90187ce7e268a84b135))
+* add configuration mechanism ([46f18de](https://github.com/jtbonhomme/asteboids/commit/46f18dee50da9c3530a923fdf5dc6e61b3fc1bdc))
+* add link in debug for visible agents ([6337b47](https://github.com/jtbonhomme/asteboids/commit/6337b472bfd89f4fa36508c65a21e9ac9a41f797))
+* add separation ([bd31037](https://github.com/jtbonhomme/asteboids/commit/bd31037f55bb8a71b94a012bba97e12fe45ea974))
+* add small boids ([1b5a370](https://github.com/jtbonhomme/asteboids/commit/1b5a3708335ca88869b6e10771ad4e19a9425255))
+* wip implement flocking ([f1dbc48](https://github.com/jtbonhomme/asteboids/commit/f1dbc486de69343d9f2a9c7f633ef5f6a1264dd0))
+
 ## [0.1.1](https://github.com/jtbonhomme/asteboids/compare/0.1.0...0.1.1) (2021-04-19)
 
 

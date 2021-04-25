@@ -1,9 +1,12 @@
 .DS_Store
 screenshot_*.png
 asteboids
+asteboids.wasm
+build/asteboids.wasm
 node_modules/
 cover.html
 cover.xml
 coverage.out
 *.prof
 profile*.png
+*.dump

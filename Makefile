@@ -1,4 +1,4 @@
-.PHONY: help deps
+.PHONY: help clean test run debug lint pprof
 IMAGES_TAG = ${shell git describe --tags --match '[0-9]*\.[0-9]*\.[0-9]*' 2> /dev/null || echo 'latest'}
 GIT_SHA1:=$(shell git rev-parse --short HEAD)
 REPO=jtbonhomme/asteboids
@@ -13,16 +13,27 @@ test: lint ## Go test the repo.
 	go test ./... -cover -coverprofile coverage.out
 
 run: ## Run the main program.
-	go run cmd/asteboids/main.go
+	go run cmd/asteboids/main.go -config-file ./config.yml
 
 debug: ## Run the main program.
-	go run cmd/asteboids/main.go -debug
+	go run cmd/asteboids/main.go -config-file ./config.yml -debug -optim
 
 pprof: ## Run the main program with profiling.
 	go run cmd/asteboids/main.go -debug -cpuprofile profile.prof
 
+clean: ## Build the main program.
+	rm -f asteboids_*.dump
+	rm -f screenshot_*.png
+	rm -f profile*.png
+	rm -f profile.prof
+	rm -f asteboids asteboids.wasm
+	rm -f coverage.out cover.xml cover.html
+
 build: ## Build the main program.
 	go build -o asteboids cmd/asteboids/main.go
+
+wasm: ## Build for WASM distribution.
+	GOOS=js GOARCH=wasm go build -o build/asteboids.wasm cmd/asteboids/main.go
 
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)
@@ -36,16 +47,10 @@ cover: test ## Measure the test coverage.
 	gocov convert coverage.out | gocov-html > cover.html
 	open cover.html
 
-#####################################################################
-##
-## D O C K E R
-##
-#####################################################################
-
 login: ## Log in to docker hub registry.
 	@docker login
 
-build-docker: login ## Build microservices docker images.
+build-docker: login ## Build docker images.
 	docker build \
 		-t ${REPO}:latest \
 		-t ${REPO}:${IMAGES_TAG} \

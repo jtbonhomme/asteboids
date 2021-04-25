@@ -21,10 +21,13 @@ func (g *Game) DrawAgents(screen *ebiten.Image) {
 	for _, b := range g.bullets {
 		b.Draw(screen)
 	}
+	for _, b := range g.boids {
+		b.Draw(screen)
+	}
 }
 
 func (g *Game) Score() int {
-	return int(g.gameDuration.Seconds()/scoreTimeUnit) + g.kills*2
+	return int(g.gameDuration.Seconds()/g.conf.ScoreTimeUnit) + g.kills*2
 }
 
 // Draw draws the game screen.
@@ -37,7 +40,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAgents(screen)
 
 	if g.debug {
-		nAgents := len(g.asteroids) + len(g.starships) + len(g.bullets)
+		nAgents := len(g.asteroids) + len(g.starships) + len(g.bullets) + len(g.boids)
 		msg := fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nAgents: %d", ebiten.CurrentTPS(), ebiten.CurrentFPS(), nAgents)
 		ebitenutil.DebugPrint(screen, msg)
 	}
@@ -57,7 +60,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen,
 			title,
 			fonts.FurturisticRegularFontTitle,
-			int(g.ScreenWidth/2)-titleTextWidth/2,
+			int(g.conf.ScreenWidth/2)-titleTextWidth/2,
 			100,
 			color.Gray16{0xffff},
 		)
@@ -83,8 +86,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen,
 			gameOver,
 			fonts.KarmaticArcadeFont,
-			int(g.ScreenWidth/2)-gameOverTextWidth/2,
-			int(g.ScreenHeight/2)-gameOverTextHeight/2,
+			int(g.conf.ScreenWidth/2)-gameOverTextWidth/2,
+			int(g.conf.ScreenHeight/2)-gameOverTextHeight/2,
 			color.Gray16{0xffff},
 		)
 
@@ -96,8 +99,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen,
 			replay,
 			fonts.ArcadeClassicFont,
-			int(g.ScreenWidth/2)-replayTextWidth/2,
-			int(g.ScreenHeight/2)+gameOverTextHeight/2+replayTextHeight/2,
+			int(g.conf.ScreenWidth/2)-replayTextWidth/2,
+			int(g.conf.ScreenHeight/2)+gameOverTextHeight/2+replayTextHeight/2,
 			color.Gray16{0xbbbf},
 		)
 	}

@@ -1,27 +1,27 @@
 package agents
 
 import (
-	"image/color"
 	"time"
 
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/jtbonhomme/asteboids/internal/fonts"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	bulletThrottle time.Duration = 200 * time.Millisecond
-	rotationAngle  float64       = math.Pi / 36 // rotation of 5°
+	bulletThrottle       time.Duration = 200 * time.Millisecond
+	rotationAngle        float64       = math.Pi / 36 // rotation of 5°
+	starshipMaxVelocity  float64       = 3.0
+	starshipAcceleration float64       = 0.2
 )
 
 // Starship is a PhysicalBody agent.
 // It represents a playable star ship.
 type Starship struct {
-	physics.PhysicBody
+	physics.Body
 	lastBulletTime time.Time
 	bulletImage    *ebiten.Image
 }
@@ -42,23 +42,24 @@ func NewStarship(
 	s.AgentType = physics.StarshipAgent
 	s.Register = cbr
 	s.Unregister = cbu
-	s.Init()
-
+	s.Init(vector.Vector2D{
+		X: 0,
+		Y: 0,
+	})
+	s.LimitVelocity(starshipMaxVelocity)
 	s.Orientation = math.Pi / 2
-	s.Velocity = physics.Vector{
+	s.Move(vector.Vector2D{
+		X: x,
+		Y: y,
+	})
+	s.Accelerate(vector.Vector2D{
 		X: 0,
 		Y: 0,
-	}
-	s.Acceleration = physics.Vector{
-		X: 0,
-		Y: 0,
-	}
+	})
 	s.PhysicWidth = 50
 	s.PhysicHeight = 50
 	s.ScreenWidth = screenWidth
 	s.ScreenHeight = screenHeight
-	s.X = x
-	s.Y = y
 	s.Log = log
 
 	s.Image = starshipImage
@@ -71,8 +72,6 @@ func NewStarship(
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
-	defer s.PhysicBody.Update()
-
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		s.Rotate(-rotationAngle)
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
@@ -80,9 +79,14 @@ func (s *Starship) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		s.UpdateAcceleration(1)
+		acceleration := vector.Vector2D{
+			X: math.Cos(s.Orientation),
+			Y: math.Sin(s.Orientation),
+		}
+		acceleration.Multiply(starshipAcceleration)
+		s.Accelerate(acceleration)
 	} else {
-		s.UpdateAcceleration(0)
+		s.Accelerate(vector.Vector2D{})
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
@@ -92,6 +96,9 @@ func (s *Starship) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		s.Shot()
 	}
+
+	s.UpdateVelocity()
+	s.UpdatePosition()
 }
 
 // Shot adds a new bullet to the game.
@@ -103,7 +110,7 @@ func (s *Starship) Shot() {
 	s.lastBulletTime = time.Now()
 
 	bullet := NewBullet(s.Log,
-		s.X, s.Y,
+		s.Position().X, s.Position().Y,
 		s.Orientation,
 		s.ScreenWidth,
 		s.ScreenHeight,
@@ -115,18 +122,10 @@ func (s *Starship) Shot() {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
-	defer s.PhysicBody.Draw(screen)
-
-	if s.Debug {
-		msg := s.String()
-		textDim := text.BoundString(fonts.MonoSansRegularFont, msg)
-		textWidth := textDim.Max.X - textDim.Min.X
-		text.Draw(screen, msg, fonts.MonoSansRegularFont, int(s.X)-textWidth/2, int(s.Y+s.PhysicHeight/2+5), color.Gray16{0x999f})
-	}
+	s.Body.Draw(screen)
 }
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
-	defer s.Explode()
-	s.Log.Debugf("SelfDestroy starship %s", s.ID())
+	s.Explode()
 }

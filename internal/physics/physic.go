@@ -4,15 +4,14 @@ import (
 
 	// anonymous import for png decoder
 	_ "image/png"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 )
 
 const (
-	accelerationFactor float64 = 0.3
-	velocityFactor     float64 = 1.8
-	maxVelocity        float64 = 5.5
-	frictionFactor     float64 = 0.03
+	defaultMaxVelocity float64 = 3.5
 	collisionPrecision float64 = 1.0
 )
 
@@ -21,6 +20,7 @@ const (
 	AsteroidAgent string = "asteroid"
 	RubbleAgent   string = "rubble"
 	BulletAgent   string = "bullet"
+	BoidAgent     string = "boid"
 )
 
 // Size represents coordonnates (X, Y) of a physical body.
@@ -35,25 +35,13 @@ type Size struct {
 	W float64
 }
 
-// Vector represents a vector composantes.
-type Vector struct {
-	X float64
-	Y float64
-}
-
-// Block is a dimension and position helper structure.
-type Block struct {
-	Position
-	Size
-}
-
 type Physic interface {
 	// Draw draws the agent on screen.
 	Draw(*ebiten.Image)
 	// Update proceeds the agent state.
 	Update()
 	// Init initializes the physic body.
-	Init()
+	Init(vector.Vector2D)
 	// ID displays physic body unique ID.
 	ID() string
 	// String displays physic body information as a string.
@@ -64,16 +52,26 @@ type Physic interface {
 	Intersect(Physic) bool
 	// IntersectMultiple checks if multiple physical bodies are colliding with the first
 	IntersectMultiple(map[string]Physic) (string, bool)
-	// Dimensions returns physical body dimensions.
-	Dimension() Block
+	// position returns physical body position.
+	Position() vector.Vector2D
+	// Dimension returns physical body dimension.
+	Dimension() Size
 	// Type returns physical body agent type as a string.
 	Type() string
 	// Explode proceeds the agent explosion and termination.
 	Explode()
+	// Velocity returns physical body velocity.
+	Velocity() vector.Vector2D
+	// Dump write out internal agent's state.
+	Dump(*os.File) error
 }
 
-// AgentRegister is a function to register an agent
+// AgentRegister is a function to register an agent.
 type AgentRegister func(Physic)
 
-// AgentUnregister is a function to unregister an agent
+// AgentUnregister is a function to unregister an agent.
 type AgentUnregister func(string, string)
+
+// Todo change float64, float64 parameter by a Position
+// AgentVision is a function used by agents to "see" around them.
+type AgentVision func(float64, float64) []Physic

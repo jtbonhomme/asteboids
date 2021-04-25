@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/jtbonhomme/asteboids/compare/0.3.0...0.3.1) (2021-04-25)
+
+
+### Bug Fixes
+
+* redesign boids from drawing primitives ([c3d9f80](https://github.com/jtbonhomme/asteboids/commit/c3d9f80ffc670bd96356e7e0c0e9d2d7d8c51e77))
+
 # [0.3.0](https://github.com/jtbonhomme/asteboids/compare/0.2.1...0.3.0) (2021-04-25)
 
 

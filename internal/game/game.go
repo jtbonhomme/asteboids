@@ -1,18 +1,16 @@
 package game
 
 import (
-	"errors"
 	"fmt"
-	"image"
 	"image/color"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/agents"
 	"github.com/jtbonhomme/asteboids/internal/ai"
 	"github.com/jtbonhomme/asteboids/internal/config"
+	"github.com/jtbonhomme/asteboids/internal/images"
 	"github.com/jtbonhomme/asteboids/internal/physics"
 	"github.com/sirupsen/logrus"
 )
@@ -65,60 +63,35 @@ func New(log *logrus.Logger,
 	}
 
 	for i := 0; i < 5; i++ {
-		aFilename := fmt.Sprintf("./resources/images/asteroid%d.png", i)
-		asteroidImage, err := g.LoadImage(aFilename)
+		aFilename := fmt.Sprintf("asteroid%d.png", i)
+		asteroidImage, err := images.LoadImageFromSlice(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight), aFilename)
 		if err != nil {
 			log.Errorf("error when loading image from file: %s", err.Error())
 		}
 		g.asteroidImages[i] = asteroidImage
-		rFilename := fmt.Sprintf("./resources/images/rubble%d.png", i)
-		rubbleImage, err := g.LoadImage(rFilename)
+		rFilename := fmt.Sprintf("rubble%d.png", i)
+		rubbleImage, err := images.LoadImageFromSlice(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight), rFilename)
 		if err != nil {
 			log.Errorf("error when loading image from file: %s", err.Error())
 		}
 		g.rubbleImages[i] = rubbleImage
 	}
-	starshipImage, err := g.LoadImage("./resources/images/ship.png")
+	starshipImage, err := images.LoadImageFromSlice(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight), "ship.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
 	g.starshipImage = starshipImage
-	bulletImage, err := g.LoadImage("./resources/images/bullet.png")
+	bulletImage, err := images.LoadImageFromSlice(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight), "bullet.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
 	g.bulletImage = bulletImage
-	boidImage, err := g.LoadImage("./resources/images/boid.png")
+	boidImage, err := images.LoadImageFromSlice(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight), "boid.png")
 	if err != nil {
 		log.Errorf("error when loading image from file: %s", err.Error())
 	}
 	g.boidImage = boidImage
 	return g
-}
-
-// LoadImage loads a picture into an ebiten image.
-func (g *Game) LoadImage(file string) (*ebiten.Image, error) {
-	newImage := ebiten.NewImage(int(g.conf.ScreenWidth), int(g.conf.ScreenHeight))
-
-	f, err := os.Open(file)
-	if err != nil {
-		newImage.Fill(color.White)
-		return newImage, errors.New("error when opening file " + err.Error())
-	}
-
-	defer f.Close()
-	rawImage, _, err := image.Decode(f)
-	if err != nil {
-		newImage.Fill(color.White)
-		return newImage, errors.New("error when decoding image from file " + err.Error())
-	}
-
-	newImageFromImage := ebiten.NewImageFromImage(rawImage)
-	if newImageFromImage == nil {
-		return newImage, errors.New("error when creating image from raw " + err.Error())
-	}
-	newImage.DrawImage(newImageFromImage, nil)
-	return newImage, nil
 }
 
 // StartGame initializes a new game.

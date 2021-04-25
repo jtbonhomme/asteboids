@@ -32,8 +32,12 @@ clean: ## Build the main program.
 build: ## Build the main program.
 	go build -o asteboids cmd/asteboids/main.go
 
-wasm: ## Build for WASM distribution.
+wasm: ## Build for Web Assembly distribution.
 	GOOS=js GOARCH=wasm go build -o build/asteboids.wasm cmd/asteboids/main.go
+
+serve: ## Serve Web Assembly build on localhost:8080.
+	which wasmserve || (go install github.com/hajimehoshi/wasmserve@latest)
+	wasmserve cmd/asteboids/main.go
 
 badge: lint ## Generate a coverage badge.
 	which gopherbadger || (go get github.com/jpoles1/gopherbadger)

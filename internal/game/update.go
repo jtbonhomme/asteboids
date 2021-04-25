@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/sounds"
 )
 
 // UpdateAgents loops over all game agents to update them
@@ -65,14 +66,26 @@ func (g *Game) Update() error {
 	if !g.gameOver {
 		g.gameDuration = time.Since(g.startTime).Round(time.Second)
 	}
+
 	// periodically add new asteroids
-	if g.conf.AutoGenerateAsteroidsRatio > 0 && int(g.gameDuration.Seconds()/g.conf.AutoGenerateAsteroidsRatio) > len(g.asteroids) {
+	if g.conf.AsteroidsRespawn > 0 && int(g.gameDuration.Seconds()/g.conf.AsteroidsRespawn) > len(g.asteroids) {
 		g.AddAsteroid(g.asteroidImages[rand.Intn(5)])
 	}
+
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		err := g.Dump()
 		if err != nil {
 			g.log.Errorf("can't dump: %s", err.Error())
+		}
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyM) {
+		if g.mute {
+			sounds.Unmute()
+			g.mute = false
+		} else {
+			sounds.Mute()
+			g.mute = true
 		}
 	}
 

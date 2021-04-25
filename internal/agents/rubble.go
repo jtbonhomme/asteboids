@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/sounds"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
@@ -75,4 +76,8 @@ func (r *Rubble) Draw(screen *ebiten.Image) {
 // Explode proceeds the rubble termination.
 func (r *Rubble) Explode() {
 	r.Unregister(r.ID(), r.Type())
+	go func() {
+		_ = sounds.BangSmallPlayer.Rewind()
+		sounds.BangSmallPlayer.Play()
+	}()
 }

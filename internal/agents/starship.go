@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/sounds"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
@@ -87,6 +88,10 @@ func (s *Starship) Update() {
 		}
 		acceleration.Multiply(starshipAcceleration)
 		s.Accelerate(acceleration)
+		go func() {
+			_ = sounds.ThrustPlayer.Rewind()
+			sounds.ThrustPlayer.Play()
+		}()
 	} else {
 		s.Accelerate(vector.Vector2D{})
 	}
@@ -97,6 +102,10 @@ func (s *Starship) Update() {
 
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		s.Shot()
+		go func() {
+			_ = sounds.FirePlayer.Rewind()
+			sounds.FirePlayer.Play()
+		}()
 	}
 
 	s.UpdateVelocity()
@@ -131,5 +140,18 @@ func (s *Starship) Draw(screen *ebiten.Image) {
 
 // SelfDestroy removes the agent from the game
 func (s *Starship) SelfDestroy() {
-	s.Explode()
+	go func() {
+		_ = sounds.BangLargePlayer.Rewind()
+		sounds.BangLargePlayer.Play()
+	}()
+	s.Unregister(s.ID(), s.Type())
+}
+
+// Explode proceeds the rubble termination.
+func (s *Starship) Explode() {
+	s.Unregister(s.ID(), s.Type())
+	go func() {
+		_ = sounds.BangLargePlayer.Rewind()
+		sounds.BangLargePlayer.Play()
+	}()
 }

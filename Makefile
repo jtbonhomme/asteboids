@@ -37,6 +37,7 @@ wasm: ## Build for Web Assembly distribution.
 
 serve: ## Serve Web Assembly build on localhost:8080.
 	which wasmserve || (go install github.com/hajimehoshi/wasmserve@latest)
+	@echo "Open http://localhost:8080"
 	wasmserve cmd/asteboids/main.go
 
 badge: lint ## Generate a coverage badge.

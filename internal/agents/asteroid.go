@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/sounds"
 	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
@@ -69,14 +70,13 @@ func NewAsteroid(
 // Update is called every tick (1/60 [s] by default).
 func (a *Asteroid) Update() {
 	defer a.Body.Update()
-	//defer a.Body.UpdatePosition()
 	a.Rotate(asteroidRotationSpeed)
 }
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (a *Asteroid) Draw(screen *ebiten.Image) {
-	defer a.Body.Draw(screen)
+	a.Body.Draw(screen)
 }
 
 // Explode proceeds the asteroid explosion and termination.
@@ -84,6 +84,10 @@ func (a *Asteroid) Draw(screen *ebiten.Image) {
 // For the second explosion, each rubble disapear from game.
 func (a *Asteroid) Explode() {
 	defer a.Unregister(a.ID(), a.Type())
+	go func() {
+		_ = sounds.BangMediumPlayer.Rewind()
+		sounds.BangMediumPlayer.Play()
+	}()
 
 	for i := 0; i < rubbleSplit; i++ {
 		rubble := NewRubble(a.Log,

@@ -8,7 +8,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/jtbonhomme/asteboids/internal/agents"
-	"github.com/jtbonhomme/asteboids/internal/ai"
 	"github.com/jtbonhomme/asteboids/internal/config"
 	"github.com/jtbonhomme/asteboids/internal/images"
 	"github.com/jtbonhomme/asteboids/internal/physics"
@@ -145,7 +144,7 @@ func (g *Game) AddAsteroid(asteroidImage *ebiten.Image) {
 
 // AddAsteroid insert a new asteroid in the game.
 func (g *Game) AddBoid() {
-	b := ai.NewBoid(g.log,
+	b := agents.NewBoid(g.log,
 		float64(rand.Intn(int(g.conf.ScreenWidth))),
 		float64(rand.Intn(int(g.conf.ScreenHeight/4))),
 		g.conf.ScreenWidth, g.conf.ScreenHeight,

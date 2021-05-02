@@ -70,4 +70,4 @@ type AgentUnregister func(string, string)
 
 // Todo change float64, float64 parameter by a Position
 // AgentVision is a function used by agents to "see" around them.
-type AgentVision func(float64, float64, float64) []Physic
+type AgentVision func(vector.Vector2D, float64) []Physic

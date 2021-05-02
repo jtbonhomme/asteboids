@@ -85,7 +85,7 @@ func NewBoid(
 func (b *Boid) Update() {
 
 	acceleration := vector.Vector2D{}
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y, b.VisionRadius)
+	nearestAgent := b.Vision(b.Position(), b.VisionRadius)
 
 	cohesion := b.cohesion(nearestAgent)
 	cohesion.Multiply(cohesionFactor)
@@ -109,7 +109,7 @@ func (b *Boid) Update() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Boid) Draw(screen *ebiten.Image) {
 	defer b.Body.Draw(screen)
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y, b.VisionRadius)
+	nearestAgent := b.Vision(b.Position(), b.VisionRadius)
 	b.LinkAgents(screen, nearestAgent, []string{physics.BoidAgent})
 }
 
@@ -152,15 +152,16 @@ func (b *Boid) separate(agents []physics.Physic) vector.Vector2D {
 	}
 	var nBoids float64 = 0.0
 	for _, agent := range agents {
-		if /*agent.Type() == physics.BoidAgent && */ agent.ID() != b.ID() {
-			nBoids++
-			d := b.Position().Distance(agent.Position())
-			diff := b.Position()
-			diff.Subtract(agent.Position())
-			diff.Normalize()
-			diff.Divide(d)
-			result.Add(diff)
+		if agent.ID() == b.ID() {
+			continue
 		}
+		nBoids++
+		d := b.Position().Distance(agent.Position())
+		diff := b.Position()
+		diff.Subtract(agent.Position())
+		diff.Normalize()
+		diff.Divide(d)
+		result.Add(diff)
 	}
 	if nBoids > 0 {
 		result.Divide(nBoids)

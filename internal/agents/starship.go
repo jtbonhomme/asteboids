@@ -134,7 +134,7 @@ func (s *Starship) Shot() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.Body.Draw(screen)
-	nearestAgent := s.Vision(s.Position().X, s.Position().Y, s.VisionRadius)
+	nearestAgent := s.Vision(s.Position(), s.VisionRadius)
 	s.LinkAgents(screen, nearestAgent, []string{physics.AsteroidAgent, physics.RubbleAgent})
 }
 

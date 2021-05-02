@@ -13,10 +13,8 @@ import (
 )
 
 const (
-	aiRotationAngle      float64 = math.Pi / 36 // rotation of 5°
 	aiMaxVelocity        float64 = 3.0
-	aiAcceleration       float64 = 0.2
-	avoidCollisionFactor float64 = 1.0
+	avoidCollisionFactor float64 = 0.2
 )
 
 // AI is a PhysicalBody agent.
@@ -87,6 +85,7 @@ func intersect(pa vector.Vector2D, sa physics.Size, pb vector.Vector2D, sb physi
 func futureIntersect(agent physics.Physic, agents []physics.Physic) bool {
 	// for each enemy agent in visibility range
 	for _, a := range agents {
+		// only consider asteroids and rubbles
 		if a.Type() != physics.AsteroidAgent &&
 			a.Type() != physics.RubbleAgent {
 			continue
@@ -102,7 +101,8 @@ func futureIntersect(agent physics.Physic, agents []physics.Physic) bool {
 	return false
 }
 
-func (s *AI) targetLocked(agents []physics.Physic) bool {
+// willShot asses is a target can be shot
+func (s *AI) willShot(agents []physics.Physic) bool {
 	// create a virtual bullet to simulate a shot
 	bullet := NewBullet(s.Log,
 		s.Position().X, s.Position().Y,
@@ -119,6 +119,28 @@ func (s *AI) avoidCollision(agents []physics.Physic) vector.Vector2D {
 		X: 0,
 		Y: 0,
 	}
+	var nAgents float64 = 0.0
+	for _, a := range agents {
+		// only consider asteroids and rubbles
+		if a.Type() != physics.AsteroidAgent &&
+			a.Type() != physics.RubbleAgent {
+			continue
+		}
+		nAgents++
+		d := s.Position().Distance(a.Position())
+		diff := s.Position()
+		diff.Subtract(a.Position())
+		diff.Normalize()
+		diff.Divide(d)
+		result.Add(diff)
+	}
+	if nAgents > 0 {
+		result.Divide(nAgents)
+		result.Normalize()
+		result.Multiply(boidMaxVelocity)
+		result.Subtract(s.Velocity())
+		result.Limit(boidMaxForce)
+	}
 	return result
 }
 
@@ -126,9 +148,9 @@ func (s *AI) avoidCollision(agents []physics.Physic) vector.Vector2D {
 // Update is called every tick (1/60 [s] by default).
 func (s *AI) Update() {
 	acceleration := vector.Vector2D{}
-	nearestAgent := s.Vision(s.Position().X, s.Position().Y, s.VisionRadius)
+	nearestAgent := s.Vision(s.Position(), s.VisionRadius)
 
-	if s.targetLocked(nearestAgent) {
+	if s.willShot(nearestAgent) {
 		s.Shot()
 	}
 
@@ -141,7 +163,7 @@ func (s *AI) Update() {
 	s.UpdateVelocity()
 	s.UpdateOrientation()
 	s.UpdatePosition()
-	s.nearestAgents = s.Vision(s.Position().X, s.Position().Y, s.VisionRadius)
+	s.nearestAgents = s.Vision(s.Position(), s.VisionRadius)
 }
 
 // Shot adds a new bullet to the game.

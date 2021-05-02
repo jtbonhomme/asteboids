@@ -11,6 +11,7 @@ import (
 	"github.com/jtbonhomme/asteboids/internal/config"
 	"github.com/jtbonhomme/asteboids/internal/images"
 	"github.com/jtbonhomme/asteboids/internal/physics"
+	"github.com/jtbonhomme/asteboids/internal/vector"
 	"github.com/sirupsen/logrus"
 )
 
@@ -173,26 +174,26 @@ func (g *Game) RestartGame() {
 }
 
 // Vision returns all agents located in a radius from (x,y)
-func (g *Game) Vision(x, y, radius float64) []physics.Physic {
+func (g *Game) Vision(pos vector.Vector2D, radius float64) []physics.Physic {
 	nearestAgents := []physics.Physic{}
 
 	for _, v := range g.starships {
-		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
+		if pos.SquareDistance(v.Position()) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.asteroids {
-		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
+		if pos.SquareDistance(v.Position()) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.bullets {
-		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
+		if pos.SquareDistance(v.Position()) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}
 	for _, v := range g.boids {
-		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
+		if pos.SquareDistance(v.Position()) < radius*radius {
 			nearestAgents = append(nearestAgents, v)
 		}
 	}

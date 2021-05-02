@@ -67,8 +67,26 @@ func (v Vector2D) Theta() float64 {
 	return theta
 }
 
+func (v Vector2D) XSym(w float64) Vector2D {
+	return Vector2D{
+		X: w - v.X,
+		Y: v.Y,
+	}
+}
+
+func (v Vector2D) YSym(h float64) Vector2D {
+	return Vector2D{
+		X: v.X,
+		Y: h - v.Y,
+	}
+}
+
 func (v Vector2D) Distance(v2 Vector2D) float64 {
 	return math.Sqrt(math.Pow(v2.X-v.X, 2) + math.Pow(v2.Y-v.Y, 2))
+}
+
+func (v Vector2D) SquareDistance(v2 Vector2D) float64 {
+	return (v2.X-v.X)*(v2.X-v.X) + (v2.Y-v.Y)*(v2.Y-v.Y)
 }
 
 func (v Vector2D) IsNil() bool {

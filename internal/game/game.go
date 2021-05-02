@@ -98,7 +98,7 @@ func New(log *logrus.Logger,
 // StartGame initializes a new game.
 func (g *Game) StartGame() {
 	// add starship
-	p := agents.NewStarship(
+	p := agents.NewAI(
 		g.log,
 		g.conf.ScreenWidth/2,
 		g.conf.ScreenHeight/2,
@@ -173,9 +173,8 @@ func (g *Game) RestartGame() {
 }
 
 // Vision returns all agents located in a radius from (x,y)
-func (g *Game) Vision(x, y float64) []physics.Physic {
+func (g *Game) Vision(x, y, radius float64) []physics.Physic {
 	nearestAgents := []physics.Physic{}
-	radius := g.conf.VisionRadius
 
 	for _, v := range g.starships {
 		if (v.Position().X-x)*(v.Position().X-x)+(v.Position().Y-y)*(v.Position().Y-y) < radius*radius {
@@ -204,6 +203,8 @@ func (g *Game) Vision(x, y float64) []physics.Physic {
 // Register adds a new agent (player or ai) to the game.
 func (g *Game) Register(agent physics.Physic) {
 	switch agent.Type() {
+	case physics.AIAgent:
+		g.starships[agent.ID()] = agent
 	case physics.StarshipAgent:
 		g.starships[agent.ID()] = agent
 	case physics.AsteroidAgent:
@@ -221,6 +222,8 @@ func (g *Game) Register(agent physics.Physic) {
 // Unregister deletes an agent (player or ai) from the game.
 func (g *Game) Unregister(id, agentType string) {
 	switch agentType {
+	case physics.AIAgent:
+		delete(g.starships, id)
 	case physics.StarshipAgent:
 		delete(g.starships, id)
 	case physics.AsteroidAgent:

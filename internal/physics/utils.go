@@ -194,3 +194,18 @@ func NewBody(x, y, w, h float64) *Body {
 		PhysicHeight: h,
 	}
 }
+
+// FuturePosition return position the physic body will be in t time iteration,
+// if velocity is constant.
+func (pb *Body) FuturePosition(t float64) vector.Vector2D {
+	return futurePosition(t, pb.Position(), pb.Velocity())
+}
+
+// futurePosition return position the physic body will be in t time iteration,
+// if velocity is constant.
+func futurePosition(t float64, pos, vel vector.Vector2D) vector.Vector2D {
+	result := vel
+	result.Multiply(t)
+	result.Add(pos)
+	return result
+}

@@ -20,13 +20,8 @@ const (
 	RubbleAgent   string = "rubble"
 	BulletAgent   string = "bullet"
 	BoidAgent     string = "boid"
+	AIAgent       string = "ai"
 )
-
-// Size represents coordonnates (X, Y) of a physical body.
-type Position struct {
-	X float64
-	Y float64
-}
 
 // Size represents height and width of a physical body.
 type Size struct {
@@ -53,6 +48,8 @@ type Physic interface {
 	IntersectMultiple(map[string]Physic) (string, bool)
 	// position returns physical body position.
 	Position() vector.Vector2D
+	// FuturePosition return position the physic body will be in z time iteration.
+	FuturePosition(float64) vector.Vector2D
 	// Dimension returns physical body dimension.
 	Dimension() Size
 	// Type returns physical body agent type as a string.
@@ -73,4 +70,4 @@ type AgentUnregister func(string, string)
 
 // Todo change float64, float64 parameter by a Position
 // AgentVision is a function used by agents to "see" around them.
-type AgentVision func(float64, float64) []Physic
+type AgentVision func(float64, float64, float64) []Physic

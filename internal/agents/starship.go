@@ -13,10 +13,9 @@ import (
 )
 
 const (
-	bulletThrottle       time.Duration = 200 * time.Millisecond
-	rotationAngle        float64       = math.Pi / 36 // rotation of 5°
-	starshipMaxVelocity  float64       = 3.0
-	starshipAcceleration float64       = 0.2
+	starshipRotationAngle float64 = math.Pi / 36 // rotation of 5°
+	starshipMaxVelocity   float64 = 3.0
+	starshipAcceleration  float64 = 0.2
 )
 
 // Starship is a PhysicalBody agent.
@@ -61,6 +60,7 @@ func NewStarship(
 	})
 	s.PhysicWidth = 50
 	s.PhysicHeight = 50
+	s.VisionRadius = 250
 	s.ScreenWidth = screenWidth
 	s.ScreenHeight = screenHeight
 	s.Log = log
@@ -76,9 +76,9 @@ func NewStarship(
 // Update is called every tick (1/60 [s] by default).
 func (s *Starship) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		s.Rotate(-rotationAngle)
+		s.Rotate(-starshipRotationAngle)
 	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		s.Rotate(rotationAngle)
+		s.Rotate(starshipRotationAngle)
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
@@ -134,7 +134,7 @@ func (s *Starship) Shot() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (s *Starship) Draw(screen *ebiten.Image) {
 	defer s.Body.Draw(screen)
-	nearestAgent := s.Vision(s.Position().X, s.Position().Y)
+	nearestAgent := s.Vision(s.Position().X, s.Position().Y, s.VisionRadius)
 	s.LinkAgents(screen, nearestAgent, []string{physics.AsteroidAgent, physics.RubbleAgent})
 }
 

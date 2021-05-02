@@ -74,3 +74,7 @@ func (v Vector2D) Distance(v2 Vector2D) float64 {
 func (v Vector2D) IsNil() bool {
 	return (v.X == 0 && v.Y == 0)
 }
+
+func (v Vector2D) IsEqual(v2 Vector2D) bool {
+	return (v.X == v2.X && v.Y == v2.Y)
+}

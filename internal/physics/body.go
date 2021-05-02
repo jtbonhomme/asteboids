@@ -27,10 +27,11 @@ type Body struct {
 	maxVelocity  float64
 	acceleration vector.Vector2D
 
-	Register   AgentRegister
-	Unregister AgentUnregister
-	Vision     AgentVision
-	Image      *ebiten.Image
+	Register     AgentRegister
+	Unregister   AgentUnregister
+	Vision       AgentVision
+	VisionRadius float64
+	Image        *ebiten.Image
 
 	Debug bool
 }

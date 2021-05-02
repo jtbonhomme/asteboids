@@ -1,12 +1,11 @@
 package agents
 
 import (
+	"image/color"
 	"math"
 	"math/rand"
 
 	// anonymous import for png decoder
-
-	"image/color"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,14 +26,6 @@ const (
 // It represents a single autonomous agent.
 type Boid struct {
 	physics.Body
-}
-
-func rayVertices(x1, y1, x2, y2, x3, y3 float64) []ebiten.Vertex {
-	return []ebiten.Vertex{
-		{DstX: float32(x1), DstY: float32(y1), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
-		{DstX: float32(x2), DstY: float32(y2), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
-		{DstX: float32(x3), DstY: float32(y3), SrcX: 0, SrcY: 0, ColorR: 1, ColorG: 1, ColorB: 1, ColorA: 1},
-	}
 }
 
 // NewBoid creates a new Boid (PhysicalBody agent)
@@ -84,6 +75,7 @@ func NewBoid(
 		op,
 	)
 	b.Vision = vision
+	b.VisionRadius = 100
 	b.Debug = debug
 	return &b
 }
@@ -93,7 +85,7 @@ func NewBoid(
 func (b *Boid) Update() {
 
 	acceleration := vector.Vector2D{}
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y)
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y, b.VisionRadius)
 
 	cohesion := b.cohesion(nearestAgent)
 	cohesion.Multiply(cohesionFactor)
@@ -117,7 +109,7 @@ func (b *Boid) Update() {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (b *Boid) Draw(screen *ebiten.Image) {
 	defer b.Body.Draw(screen)
-	nearestAgent := b.Vision(b.Position().X, b.Position().Y)
+	nearestAgent := b.Vision(b.Position().X, b.Position().Y, b.VisionRadius)
 	b.LinkAgents(screen, nearestAgent, []string{physics.BoidAgent})
 }
 

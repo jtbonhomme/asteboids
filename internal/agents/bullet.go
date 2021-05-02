@@ -2,6 +2,7 @@ package agents
 
 import (
 	"math"
+	"time"
 
 	// anonymous import for png decoder
 	_ "image/png"
@@ -13,8 +14,9 @@ import (
 )
 
 const (
-	bulletVelocity float64 = 20.0
-	bulletTTL      int     = 30
+	bulletThrottle time.Duration = 200 * time.Millisecond
+	bulletVelocity float64       = 20.0
+	bulletTTL      int           = 30
 )
 
 // Bullet is a PhysicalBody agent
